@@ -1,3 +1,5 @@
+# library(tidyverse)
+
 is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
@@ -20,7 +22,7 @@ is_void <- function(x) {
 
 fen_move <- function(fen, move) {
   # Parse FEN
-  parsed_fen <- str_match(fen, "([^ ]+) ([wb]) ([KQkq]+) ([a-h-][1-8]?) (\\d+) (\\d+)( \\+(\\d+)\\+(\\d+))?")
+  parsed_fen <- str_match(fen, "([^ ]+) ([wb]) ([KQkq-]+) ([a-h-][1-8]?) (\\d+) (\\d+)( \\+(\\d+)\\+(\\d+))?")
   print(parsed_fen)
   
   position <- parsed_fen[2]
@@ -46,11 +48,11 @@ fen_move <- function(fen, move) {
   # Castling logic supports 960
   # Assumes castling is valid
   # H-SIDE CASTLE 
-  if (str_detect(move, "O-O[+#]?")) {
+  if (str_detect(move, "(?<!-)O-O[+#]?$")) {
     halfmove_clock <- halfmove_clock + 1
     rfile <- 0
     if (turn == "w") {
-      castle_rights <- str_remove(castle_rights, "[KQ]")
+      castle_rights <- str_remove_all(castle_rights, "[KQ]")
       home_rank = str_extract(position, "[^/]*$")
       kfile <- str_locate(home_rank, "K")[1]
       for (i in (kfile+1):8) {
@@ -65,7 +67,7 @@ fen_move <- function(fen, move) {
       substr(home_rank, 7, 7) <- "K"
       position <- str_replace(position, "[^/]*$", home_rank)
     } else {
-      castle_rights <- str_remove(castle_rights, "[kq]")
+      castle_rights <- str_remove_all(castle_rights, "[kq]")
       home_rank = str_extract(position, "^[^/]*")
       kfile <- str_locate(home_rank, "k")[1]
       for (i in (kfile+1):8) {
@@ -86,7 +88,7 @@ fen_move <- function(fen, move) {
     halfmove_clock <- halfmove_clock + 1
     rfile <- 0
     if (turn == "w") {
-      castle_rights <- str_remove(castle_rights, "[KQ]")
+      castle_rights <- str_remove_all(castle_rights, "[KQ]")
       home_rank = str_extract(position, "[^/]*$")
       kfile <- str_locate(home_rank, "K")[1]
       for (i in (kfile-1):1) {
@@ -101,7 +103,7 @@ fen_move <- function(fen, move) {
       substr(home_rank, 3, 3) <- "K"
       position <- str_replace(position, "[^/]*$", home_rank)
     } else {
-      castle_rights <- str_remove(castle_rights, "[kq]")
+      castle_rights <- str_remove_all(castle_rights, "[kq]")
       home_rank = str_extract(position, "^[^/]*")
       kfile <- str_locate(home_rank, "k")[1]
       for (i in (kfile-1):1) {
@@ -357,8 +359,6 @@ fen_move <- function(fen, move) {
         }
         
         
-        
-
         
       } else if (! is.na(rank)) {
         print("source rank given")
@@ -679,10 +679,16 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look down-left
             print("looking down-left")
-            if (dr_space > 0) {
-              spaces <- cbind((target_file:(target_file-dr_space))[-1], 
-                              (target_rank:(target_rank+dr_space))[-1])
-              for (s in seq(dr_space)) {
+            print(paste("dl_space is", dl_space))
+            if (dl_space > 0) {
+              print((target_file:(target_file-dl_space))[-1])
+              print((target_rank:(target_rank+dl_space))[-1])
+              spaces <- cbind((target_file:(target_file-dl_space))[-1], 
+                              (target_rank:(target_rank+dl_space))[-1])
+              print("spaces =")
+              print(spaces)
+              for (s in seq(dl_space)) {
+                print(paste("s =", s))
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
@@ -696,10 +702,10 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look up-right
             print("looking up-right")
-            if (dr_space > 0) {
-              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
-                              (target_rank:(target_rank-dr_space))[-1])
-              for (s in seq(dr_space)) {
+            if (ur_space > 0) {
+              spaces <- cbind((target_file:(target_file+ur_space))[-1], 
+                              (target_rank:(target_rank-ur_space))[-1])
+              for (s in seq(ur_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
@@ -755,10 +761,10 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look down-left
             print("looking down-left")
-            if (dr_space > 0) {
-              spaces <- cbind((target_file:(target_file-dr_space))[-1], 
-                              (target_rank:(target_rank+dr_space))[-1])
-              for (s in seq(dr_space)) {
+            if (dl_space > 0) {
+              spaces <- cbind((target_file:(target_file-dl_space))[-1], 
+                              (target_rank:(target_rank+dl_space))[-1])
+              for (s in seq(dl_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
@@ -772,10 +778,10 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look up-right
             print("looking up-right")
-            if (dr_space > 0) {
-              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
-                              (target_rank:(target_rank-dr_space))[-1])
-              for (s in seq(dr_space)) {
+            if (ur_space > 0) {
+              spaces <- cbind((target_file:(target_file+ur_space))[-1], 
+                              (target_rank:(target_rank-ur_space))[-1])
+              for (s in seq(ur_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
@@ -836,9 +842,9 @@ fen_move <- function(fen, move) {
         else if (piece %in% c("n", "N")) {
           # Handle knight moves
           f_deviations <- target_file + c(-2,-1,1,2)
-          f_deviations <- f_deviations[f_deviations < 9 && f_deviations > 0]
+          f_deviations <- f_deviations[f_deviations < 9 & f_deviations > 0]
           r_deviations <- target_rank + c(-2,-1,1,2)
-          r_deviations <- r_deviations[r_deviations < 9 && r_deviations > 0]
+          r_deviations <- r_deviations[r_deviations < 9 & r_deviations > 0]
           print("f_dev=")
           print(f_deviations)
           print("r_dev=")
@@ -869,9 +875,9 @@ fen_move <- function(fen, move) {
           # I'm not worried about looking for checks because if there is more 
           # than one king of the same color I'll assume the king can be captured.
           f_deviations <- target_file + c(-1,0,1)
-          f_deviations <- f_deviations[f_deviations < 9 && f_deviations > 0]
+          f_deviations <- f_deviations[f_deviations < 9 & f_deviations > 0]
           r_deviations <- target_rank + c(-1,0,1)
-          r_deviations <- r_deviations[r_deviations < 9 && r_deviations > 0]
+          r_deviations <- r_deviations[r_deviations < 9 & r_deviations > 0]
           for (f in f_deviations) {
             for (r in r_deviations) {
               if (f == 0 && r == 0) {
@@ -940,6 +946,10 @@ fen_move <- function(fen, move) {
     }
   }
   
+  if (castle_rights == "") {
+    castle_rights <- "-"
+  }
+  
   fen <- paste(position, turn, castle_rights, en_passant_target, halfmove_clock, 
                move_number) %>% 
     paste0(if_else(!is.na(white_checks), 
@@ -964,3 +974,28 @@ fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2", "Nf3") 
   "rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2"
 fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2", "Bb7") ==
   "rn1qkbnr/pbpppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3"
+fen_move("rn1qkbnr/pbpppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3", "Nc3") ==
+  "rn1qkbnr/pbpppppp/1p6/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 3 3"
+fen_move("rn1qkbnr/pbpppppp/1p6/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 3 3", "Nf6") ==
+  "rn1qkb1r/pbpppppp/1p3n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 4 4"
+fen_move("rn1qkb1r/pbpppppp/1p3n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 4 4", "Bf4") ==
+  "rn1qkb1r/pbpppppp/1p3n2/8/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 5 4"
+fen_move("rn1qkb1r/pbpppppp/1p3n2/8/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 5 4", "d5") ==
+  "rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 0 5"
+fen_move("rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 0 5", "e3") == 
+  "rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5"
+fen_move("rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5", "e6") ==
+  "rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6"
+fen_move("rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6", "Bd3") ==
+  "rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2NBPN2/PPP2PPP/R2QK2R b KQkq - 1 6"
+fen_move("rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2NBPN2/PPP2PPP/R2QK2R b KQkq - 1 6", "Bb4") ==
+  "rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPP2PPP/R2QK2R w KQkq - 2 7"
+fen_move("rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPP2PPP/R2QK2R w KQkq - 2 7", "Qd2") ==
+  "rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R b KQkq - 3 7"
+fen_move("rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R b KQkq - 3 7", "O-O") ==
+  "rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R w KQ - 4 8"
+fen_move("rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R w KQ - 4 8", "O-O-O") ==
+  "rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R b - - 5 8"
+fen_move("rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R b - - 5 8", "Na6") ==
+  "r2q1rk1/pbp2ppp/np2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R w - - 6 9"
+

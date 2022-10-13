@@ -1,16 +1,37 @@
+is_void <- function(x) {
+  return (is.na(x) || x == "" || length(x) == 0)
+}
+
+# Done:
+# queen
+# bishop
+# rook
+# castling
+# all pawn moves
+# knight
+# king
+# crazyhouse placement
+# correct labels for enpassant flag
+# update halfmove counter
+
+# need to do:
+# testing and debugging
+# error handling, e.g. empty move
+
 fen_move <- function(fen, move) {
   # Parse FEN
   parsed_fen <- str_match(fen, "([^ ]+) ([wb]) ([KQkq]+) ([a-h-][1-8]?) (\\d+) (\\d+)( \\+(\\d+)\\+(\\d+))?")
+  print(parsed_fen)
   
   position <- parsed_fen[2]
   turn <- parsed_fen[3]
   castle_rights <- parsed_fen[4]
   en_passant_target <- parsed_fen[5]
-  halfmove_clock <- parsed_fen[6] # for 50 move rule
-  move_number <- as_numeric(parsed_fen[7])
+  halfmove_clock <- as.numeric(parsed_fen[6]) # for 50 move rule
+  move_number <- as.numeric(parsed_fen[7])
   # needed for Three Check variant
-  white_checks <- as_numeric(parsed_fen[9]) # FOR white, not against white
-  black_checks <- as_numeric(parsed_fen[10]) # FOR black, not against black
+  white_checks <- as.numeric(parsed_fen[9]) # FOR white, not against white
+  black_checks <- as.numeric(parsed_fen[10]) # FOR black, not against black
   
   
   # SPLIT EMPTY SPACES
@@ -21,7 +42,7 @@ fen_move <- function(fen, move) {
                                           "6"="111111",
                                           "7"="1111111",
                                           "8"="11111111"))
-  
+   
   # Castling logic supports 960
   # Assumes castling is valid
   # H-SIDE CASTLE 
@@ -98,141 +119,777 @@ fen_move <- function(fen, move) {
     
     # OTHER MOVES
   } else {
+    print("normal kind of move")
     # [piece?, file?, rank?, capture?, ch_place?, target, promotion, check(mate)?]
     move_parts <- str_match(move, "([RNBQKrnbqk]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
+    print(move_parts)
     
+    print(paste("position=", position))
     position_2d <- position %>% 
       str_split("\\/") %>% 
       unlist() %>% 
       str_split("")
     
-    piece <- if_else(! is.na(move_parts[2]), 
-                     move_parts[2], 
-                     if_else(turn == "w", "P", "p"))
+    piece <- if_else(move_parts[2] != "", 
+                     move_parts[2],  # Assign Piece
+                     if_else(turn == "w", "P", "p"))  # Assign Pawn
+    print(paste("piece is", piece))
     
     
-    capture <- ! is.na(move_parts[5])
+    capture <- move_parts[5] != ""
     target <- unlist(str_split(move_parts[7], ""))
-    target[1] <- charToRaw(target[1]) - 60
-    target[2] <- as_numeric(target[2])
+    print(paste("target =",target))
+    target_file <- as.numeric(charToRaw(target[1])) - 96
+    if (length(target_file) == 0) {
+      # this shouldn't happen. I guess this is temporary caution
+      target_file <- NA
+    }
+    target_rank <- (8:1)[as.numeric(target[2])] # We're reversing the order to match the way I've constructed position_2d
     
-    if (! is.na(move_parts[6])) {
-      # crazyhouse place
-      # just change at target
+    if (! is_void(move_parts[6])) {
+      print("crazyhouse placement")
+      # crazyhouse place. just change at target
+      position_2d[[target_rank]][target_file] <- piece
       
     } else {
       
-      file <- charToRaw(move_parts[3]) - 60
-      rank <- (8:1)[as_numeric(move_parts[4])]
+      print(paste("moving to", target_file, target_rank))
+      
+      file <- as.numeric(charToRaw(move_parts[3])) - 96
+      if (length(file) == 0) {
+        file <- NA
+      }
+      rank <- (8:1)[as.numeric(move_parts[4])] # reversed order again here
+      
+      if (capture || piece %in% c("p", "P")) {
+        halfmove_clock <- 0
+      } else {
+        halfmove_clock <- halfmove_clock + 1
+      }
       
       # Find Source
       # Simply pick first valid source because PGN disambiguates for us.
       if (! is.na(file) && ! is.na(rank)) {
+        print("source given")
         # source already given
         source_file <- file
         source_rank <- rank
         
       } else if (! is.na(file)) {
+        print("source file given")
         source_file <- file
+        source_rank <- 0
         # determine source rank
         
         if (piece %in% c("p","P")) {
           # handle pawn moves
           pawn_direction <- if_else(piece == "P", -1, 1)
-          source_rank <- target[2] - pawn_direction
+          source_rank <- target_rank - pawn_direction
           
           if (position_2d[[source_rank]][source_file] != piece) {
             # double move
-            source_rank <- target[2] - pawn_direction*2
-            # Add en passant flag
-            en_passant_target <- paste0(target[1], target[2])
+            source_rank <- target_rank - pawn_direction*2
+            if ((target_file - 1 > 0 
+                  && position_2d[[target_rank]][target_file - 1] == if_else(turn == "w", "p", "P"))
+                || (target_file + 1 < 9
+                    && position_2d[[target_rank]][target_file + 1] == if_else(turn == "w", "p", "P"))) {
+              # Add en passant flag
+              en_passant_target <- 
+                paste0(c("a","b","c","d","e","f","g","h")[target_file], 
+                       (8:1)[target_rank + if_else(turn == "w", 1, -1)])
+            }
           }
         }
+        
+        else if (piece %in% c("r", "R")) {
+          # Handle rook moves
+          
+          # look up
+          for (r in (target_rank:1)[-1]) {
+            if (position_2d[[r]][target_file] == piece) {
+              source_rank <- r
+              source_file <- target_file
+              break
+            }
+          }
+          if (source_rank == 0) { # not found
+            # look down
+            for (r in (target_rank:8)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                source_file <- target_file
+                break
+              }
+            }
+          }
+        }
+        
+        else if (piece %in% c("b", "B")) {
+          # Handle bishop moves
+          distance <- abs(source_file - target_file)
+          if (target_rank + distance < 9) {
+            if (distance > 1) {
+              # Check for obstructions
+              valid <- TRUE
+              for (d in (0:(distance - 1))[-1]) {
+                if (position_2d[[target_rank + d]][source_file + d] != "1") {
+                  valid <- FALSE
+                }
+              }
+            }
+            if (valid == TRUE &&
+                position_2d[[target_rank + distance]][target_file] == piece) {
+              source_rank <- target_rank + distance
+            }
+          } else {
+            # assume other direction is correct
+            source_rank <- target_rank - distance
+          }
+        }
+        
+        else if (piece %in% c("q", "Q")) {
+          # Handle queen moves
+          
+          if (target_file == source_file) {
+            # check along file
+            # look up
+            for (r in (target_rank:1)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                break
+              }
+            }
+            if (source_rank == 0) {
+              # look down
+              for (r in (target_rank:8)[-1]) {
+                if (position_2d[[r]][target_file] == piece) {
+                  source_rank <- r
+                  break
+                }
+              }
+            }
+          } else {
+            # check three points, but also for obstructions
+            distance <- abs(source_file - target_file)
+            direction <- if_else(source_file < target_file, -1, 1)
+            # horizontal
+            if (position_2d[[target_rank]][source_file] == piece) {
+              if (distance > 1) {
+                valid = TRUE
+                for (f in source_file + seq(distance - 1) * direction) {
+                  if (position_2d[[target_rank]][f] != "1") {
+                    valid = FALSE
+                    break
+                  }
+                }
+                if (valid) {
+                  source_rank <- target_rank
+                }
+              } else {
+                source_rank <- target_rank
+              }
+            }
+            if (source_rank == 0 && target_rank - distance > 0) {
+              if (position_2d[[target_rank + distance * direction]][source_file] == piece) {
+                if (distance > 1) {
+                  valid = TRUE
+                  for (d in seq(distance - 1)) {
+                    if (position_2d[[target_rank + d * direction]][target_file + d * direction] != "1") {
+                      valid = FALSE
+                      break
+                    }
+                  }
+                  if (valid) {
+                    source_rank <- target_rank - distance
+                  }
+                } else {
+                  source_rank <- target_rank - distance
+                }
+              }
+            }
+            if (source_rank == 0) { # rank < 9 (assumed)
+              source_rank <- target_rank + distance
+            }
+          }
+        }
+        
+        else if (piece %in% c("n", "N")) {
+          # Handle knight moves
+          if (abs(source_file - target_file) == 1) {
+            if (target_rank - 2 > 0 && 
+                position_2d[[target_rank - 2]][source_file] == piece) {
+              source_rank <- target_rank - 2
+            } else {
+              source_rank <- target_rank + 2
+            }
+          } else {
+            if (target_rank - 1 > 0 && 
+                position_2d[[target_rank - 1]][source_file] == piece) {
+              source_rank <- target_rank - 1
+            } else {
+              source_rank <- target_rank + 1
+            }
+          }
+        }
+        
+        else if (piece %in% c("k", "K")) {
+          # Handle king moves
+          if (target_rank - 1 > 0 && 
+              position_2d[[target_rank - 1]][source_file] == piece) {
+            source_rank <- target_rank - 1
+          } else if (position_2d[[target_rank]][source_file] == piece) {
+            source_rank <- target_rank
+          } else {
+            source_rank <- target_rank + 1
+          }
+        }
+        
         
         
 
         
       } else if (! is.na(rank)) {
+        print("source rank given")
         source_rank <- rank
+        source_file <- 0
         
         # determine source file
         
         if (piece %in% c("p","P")) {
           # handle pawn moves
           pawn_direction <- if_else(piece == "P", -1, 1)
-          if (rank == target[2] - pawn_direction*2) {
-            source_file <- target[1]
-            # Add en passant flag
-            en_passant_target <- paste0(target[1], target[2])
+          if (rank == target_rank - pawn_direction*2) {
+            source_file <- target_file
+            if ((target_file - 1 > 0 
+                 && position_2d[[target_rank]][target_file - 1] == if_else(turn == "w", "p", "P"))
+                || (target_file + 1 < 9
+                    && position_2d[[target_rank]][target_file + 1] == if_else(turn == "w", "p", "P"))) {
+              # Add en passant flag
+              en_passant_target <- 
+                paste0(c("a","b","c","d","e","f","g","h")[target_file], 
+                       (8:1)[[target_rank + if_else(turn == "w", 1, -1)]])
+            }
           } else if (capture) {
-            if (target[1] == 1) {
+            if (target_file == 1) {
               source_file <- 2
-            } else if (position_2d[[source_rank]][target[1] - 1] == piece) {
-              source_file <- target[1] - 1
+            } else if (position_2d[[source_rank]][target_file - 1] == piece) {
+              source_file <- target_file - 1
             } else {
-              source_file <- target[1] + 1
+              source_file <- target_file + 1
             }
             # detect en passant capture
-            if (position_2d[[target[2]]][target[1]] == "1") {
+            if (position_2d[[target_rank]][target_file] == "1") {
               # remove lower pawn.
-              position_2d[[target[2] - pawn_direction]][target[1]] <- "1"
+              position_2d[[target_rank - pawn_direction]][target_file] <- "1"
             }
           } else {
-            source_file <- target[1]
+            source_file <- target_file
+          }
+        }
+        
+        else if (piece %in% c("r", "R")) {
+          # Handle rook moves
+          
+          # look left
+          for (f in (target_file:1)[-1]) {
+            if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] == piece) {
+                source_rank <- target_rank
+                source_file <- f
+              }
+              break
+            }
+          }
+          if (source_file == 0) { # not found
+            # look right
+            for (f in (target_file:8)[-1]) {
+              if (position_2d[[target_rank]][f] != 1) {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- target_rank
+                  source_file <- f
+                }
+                break
+              }
+            }
+          }
+        }
+        
+        else if (piece %in% c("b", "B")) {
+          # Handle bishop moves
+          distance <- abs(source_rank - target_rank)
+          if (target_file + distance < 9) {
+            if (distance > 1) {
+              # Check for obstructions
+              valid <- TRUE
+              for (d in (0:(distance - 1))[-1]) {
+                if (position_2d[[target_rank - d]][source_file + d] != "1") {
+                  valid <- FALSE
+                }
+              }
+            }
+            if (valid == TRUE &&
+                position_2d[[target_rank - distance]][target_file] == piece) {
+              source_file <- target_file + distance
+            }
+          } else {
+            # assume other direction is correct
+            source_file <- target_file - distance
+          }
+        }
+        
+        else if (piece %in% c("q", "Q")) {
+          # Handle queen moves
+          
+          if (target_rank == source_rank) {
+            # check along file
+            # look up
+            for (f in (target_file:1)[-1]) {
+              if (position_2d[[target_rank]][f] == piece) {
+                source_rank <- f
+                break
+              }
+            }
+            if (source_rank == 0) {
+              # look down
+              for (f in (target_file:8)[-1]) {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- f
+                  break
+                }
+              }
+            }
+          } else {
+            # check three points, but also for obstructions
+            distance <- abs(source_rank - target_rank)
+            direction <- if_else(source_rank < target_rank, -1, 1)
+            # horizontal
+            if (position_2d[[source_rank]][target_file] == piece) {
+              if (distance > 1) {
+                valid = TRUE
+                for (r in source_file + seq(distance - 1) * direction) {
+                  if (position_2d[[r]][target_file] != "1") {
+                    valid = FALSE
+                    break
+                  }
+                }
+                if (valid) {
+                  source_file <- target_file
+                }
+              } else {
+                source_file <- target_file
+              }
+            }
+            if (source_file == 0 && target_file - distance > 0) {
+              if (position_2d[[source_rank]][target_file + distance * direction] == piece) {
+                if (distance > 1) {
+                  valid = TRUE
+                  for (d in seq(distance - 1)) {
+                    if (position_2d[[target_rank + d * direction]][target_file + d * direction] != "1") {
+                      valid = FALSE
+                      break
+                    }
+                  }
+                  if (valid) {
+                    source_file <- target_file - distance
+                  }
+                } else {
+                  source_file <- target_file - distance
+                }
+              }
+            }
+            if (source_file == 0) { # rank < 9 (assumed)
+              source_file <- target_file + distance
+            }
+          }
+        }
+        
+        else if (piece %in% c("n", "N")) {
+          # Handle knight moves
+          if (abs(source_rank - target_rank) == 1) {
+            if (target_file - 2 > 0 && 
+                position_2d[[source_rank]][target_file - 2] == piece) {
+              source_file <- target_file - 2
+            } else {
+              source_file <- target_file + 2
+            }
+          } else {
+            if (target_file - 1 > 0 && 
+                position_2d[[source_rank]][target_file - 1] == piece) {
+              source_file <- target_file - 1
+            } else {
+              source_file <- target_file + 1
+            }
+          }
+        }
+        
+        else if (piece %in% c("k", "K")) {
+          # Handle king moves
+          if (target_file - 1 > 0 && 
+              position_2d[[source_rank]][target_file - 1] == piece) {
+            source_file <- target_file - 1
+          } else if (position_2d[[source_rank]][target_file] == piece) {
+            source_file <- target_file
+          } else {
+            source_file <- target_file + 1
           }
         }
         
         
       } else {
+        print("source not given")
         # determine source both rank and file
+        source_file <- 0
+        source_rank <- 0
         
         if (piece %in% c("p","P")) {
           # handle pawn moves
           pawn_direction <- if_else(piece == "P", -1, 1)
-          source_rank <- target[2] - pawn_direction
+          source_rank <- target_rank - pawn_direction
           if (capture) {
-            if (target[1] == 1) {
+            if (target_file == 1) {
               source_file <- 2
-            } else if (position_2d[[source_rank]][target[1] - 1] == piece) {
-              source_file <- target[1] - 1
+            } else if (position_2d[[source_rank]][target_file - 1] == piece) {
+              source_file <- target_file - 1
             } else {
-              source_file <- target[1] + 1
+              source_file <- target_file + 1
             }
             # detect en passant capture
-            if (position_2d[[target[2]]][target[1]] == "1") {
+            if (position_2d[[target_rank]][target_file] == "1") {
               # remove lower pawn.
-              position_2d[[target[2] - pawn_direction]][target[1]] <- "1"
+              position_2d[[target_rank - pawn_direction]][target_file] <- "1"
             }
           } else {
-            source_file <- target[1]
-            if (position_2d[[source_rank]][target[1]] != piece) {
+            source_file <- target_file
+            if (position_2d[[source_rank]][target_file] != piece) {
               # double move
-              source_rank <- target[2] - pawn_direction*2
-              # Add en passant flag
-              en_passant_target <- paste0(target[1], target[2])
+              source_rank <- target_rank - pawn_direction*2
+              if ((target_file - 1 > 0 
+                   && position_2d[[target_rank]][target_file - 1] == if_else(turn == "w", "p", "P"))
+                  || (target_file + 1 < 9
+                      && position_2d[[target_rank]][target_file + 1] == if_else(turn == "w", "p", "P"))) {
+                # Add en passant flag
+                en_passant_target <- 
+                  paste0(c("a","b","c","d","e","f","g","h")[target_file], 
+                         (8:1)[[target_rank + if_else(turn == "w", 1, -1)]])
+              }
+            }
+          }
+        }
+        
+        else if (piece %in% c("r", "R")) {
+          # Handle rook moves
+          # look left
+          for (f in (target_file:1)[-1]) {
+            if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] == piece) {
+                source_rank <- target_rank
+                source_file <- f
+              }
+              break
+            }
+          }
+          if (source_file == 0) { # not found
+            # look right
+            for (f in (target_file:8)[-1]) {
+              if (position_2d[[target_rank]][f] != 1) {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- target_rank
+                  source_file <- f
+                }
+                break
+              }
+            }
+          }
+          if (source_file == 0) { # still not found
+            # look up
+            for (r in (target_rank:1)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                source_file <- target_file
+                break
+              }
+            }
+          }
+          if (source_file == 0) { # still not found
+            # look down
+            for (r in (target_rank:8)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                source_file <- target_file
+                break
+              }
+            }
+          }
+        }
+        
+        else if (piece %in% c("b", "B")) {
+          # Handle bishop moves
+          ul_space <- min(c(target_file - 1, target_rank - 1))
+          dr_space <- min(c(8 - target_file, 8 - target_rank))
+          dl_space <- min(c(target_file - 1, 8 - target_rank))
+          ur_space <- min(c(8 - target_file, target_rank - 1))
+          # look up-left
+          print("looking up-left")
+          if (ul_space > 0) {
+            #print(paste("ul space is", ul_space))
+            spaces <- cbind((target_file:(target_file-ul_space))[-1], 
+                            (target_rank:(target_rank-ul_space))[-1])
+            #print(spaces)
+            #print(position_2d)
+            for (s in seq(ul_space)) {
+              #print(paste("spaces[s,2] =", spaces[s,2], "spaces[s,1] =", spaces[s,1]))
+              if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  source_rank <- spaces[s,2]
+                  source_file <- spaces[s,1]
+                }
+                break
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look down-right
+            print("looking down-right")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
+                              (target_rank:(target_rank+dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look down-left
+            print("looking down-left")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file-dr_space))[-1], 
+                              (target_rank:(target_rank+dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look up-right
+            print("looking up-right")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
+                              (target_rank:(target_rank-dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+        }
+        
+        else if (piece %in% c("q", "Q")) {
+          # Handle queen moves
+          
+          # Check along diagonals
+          ul_space <- min(c(target_file - 1, target_rank - 1))
+          dr_space <- min(c(8 - target_file, 8 - target_rank))
+          dl_space <- min(c(target_file - 1, 8 - target_rank))
+          ur_space <- min(c(8 - target_file, target_rank - 1))
+          # look up-left
+          print("looking up-left")
+          if (ul_space > 0) {
+            spaces <- cbind((target_file:(target_file-ul_space))[-1], 
+                            (target_rank:(target_rank-ul_space))[-1])
+            for (s in seq(ul_space)) {
+              if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  source_rank <- spaces[s,2]
+                  source_file <- spaces[s,1]
+                }
+                break
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look down-right
+            print("looking down-right")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
+                              (target_rank:(target_rank+dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look down-left
+            print("looking down-left")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file-dr_space))[-1], 
+                              (target_rank:(target_rank+dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look up-right
+            print("looking up-right")
+            if (dr_space > 0) {
+              spaces <- cbind((target_file:(target_file+dr_space))[-1], 
+                              (target_rank:(target_rank-dr_space))[-1])
+              for (s in seq(dr_space)) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                  if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
+                    source_rank <- spaces[s,2]
+                    source_file <- spaces[s,1]
+                  }
+                  break
+                }
+              }
+            }
+          }
+        }
+        # Check orthogonally
+        # look left
+        for (f in (target_file:1)[-1]) {
+          if (position_2d[[target_rank]][f] != 1) {
+            if (position_2d[[target_rank]][f] == piece) {
+              source_rank <- target_rank
+              source_file <- f
+            }
+            break
+          }
+        }
+        if (source_file == 0) {
+          # look right
+          for (f in (target_file:8)[-1]) {
+            if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] == piece) {
+                source_rank <- target_rank
+                source_file <- f
+              }
+              break
+            }
+          }
+        }
+        if (source_file == 0) {
+          # look up
+          for (r in (target_rank:1)[-1]) {
+            if (position_2d[[r]][target_file] == piece) {
+              source_rank <- r
+              source_file <- target_file
+              break
+            }
+          }
+        }
+        if (source_file == 0) {
+          # look down
+          for (r in (target_rank:8)[-1]) {
+            if (position_2d[[r]][target_file] == piece) {
+              source_rank <- r
+              source_file <- target_file
+              break
+            }
+          }
+        }
+        
+        else if (piece %in% c("n", "N")) {
+          # Handle knight moves
+          f_deviations <- target_file + c(-2,-1,1,2)
+          f_deviations <- f_deviations[f_deviations < 9 && f_deviations > 0]
+          r_deviations <- target_rank + c(-2,-1,1,2)
+          r_deviations <- r_deviations[r_deviations < 9 && r_deviations > 0]
+          for (f in f_deviations) {
+            for (r in r_deviations) {
+              if (abs(f - source_file) + abs(r - source_rank) != 3) {
+                next
+              }
+              if (position_2d[[r]][f] == piece) {
+                source_file <- f
+                source_rank <- r
+                break
+              }
+            }
+            if (source_file != 0) {
+              break
+            }
+          }
+        }
+        
+        else if (piece %in% c("k", "K")) {
+          # Handle king moves
+          # I'm not worried about looking for checks because if there is more 
+          # than one king of the same color I'll assume the king can be captured.
+          f_deviations <- target_file + c(-1,0,1)
+          f_deviations <- f_deviations[f_deviations < 9 && f_deviations > 0]
+          r_deviations <- target_rank + c(-1,0,1)
+          r_deviations <- r_deviations[r_deviations < 9 && r_deviations > 0]
+          for (f in f_deviations) {
+            for (r in r_deviations) {
+              if (f == 0 && r == 0) {
+                next
+              }
+              if (position_2d[[r]][f] == piece) {
+                source_file <- f
+                source_rank <- r
+                break
+              }
+            }
+            if (source_file != 0) {
+              break
             }
           }
         }
         
         
-        
       }
       
-      
-      source <- c(source_file, source_rank)
-      
-      if (! is.na(move_parts[8])) {
+      if (! is_void(move_parts[8])) {
         # This is a promotion. Update piece now.
         piece <- substr(move_parts[8], 2, 2)
       }
       
+      print(paste("source=", source_file, source_rank, "target=", target_file, target_rank))
       
+      position_2d[[source_rank]][source_file] <- 1
+      position_2d[[target_rank]][target_file] <- piece
     }
     
-    
+    p <- ""
+    for (l in position_2d) {
+      p <- paste0(p, paste(l, collapse = ""), "/")
+    }
+    position <- str_remove(p, ".$")
   }
   
   # CONCATENATE EMPTY SPACES
+  # evaluates in provided order
   position <- str_replace_all(position, c("11111111"="8",
                                           "1111111"="7",
                                           "111111"="6",
@@ -269,3 +926,12 @@ fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O-O")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "Nf6")
+fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "b3")
+fen_move("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1", "e5")
+fen_move("rnbqkbnr/pppp1ppp/8/4p3/8/1P6/P1PPPPPP/RNBQKBNR w KQkq - 0 2", "Bb2")
+
+
+fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "d4") ==
+  "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
+fen_move("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1", "b6") ==
+  "rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"

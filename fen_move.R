@@ -130,11 +130,23 @@ fen_move <- function(fen, move) {
       unlist() %>% 
       str_split("")
     
-    piece <- if_else(move_parts[2] != "", 
-                     move_parts[2],  # Assign Piece
-                     if_else(turn == "w", "P", "p"))  # Assign Pawn
-    print(paste("piece is", piece))
+    piece <- if_else(turn == "w",
+                     case_when(
+                       move_parts[2] == "" ~ "P",
+                       move_parts[2] == "R" ~ "R",
+                       move_parts[2] == "N" ~ "N",
+                       move_parts[2] == "B" ~ "B",
+                       move_parts[2] == "Q" ~ "Q",
+                       move_parts[2] == "K" ~ "K"),
+                     case_when(
+                       move_parts[2] == "" ~ "p",
+                       move_parts[2] == "R" ~ "r",
+                       move_parts[2] == "N" ~ "n",
+                       move_parts[2] == "B" ~ "b",
+                       move_parts[2] == "Q" ~ "q",
+                       move_parts[2] == "K" ~ "k"))
     
+    print(paste("piece is", piece))
     
     capture <- move_parts[5] != ""
     target <- unlist(str_split(move_parts[7], ""))
@@ -159,7 +171,7 @@ fen_move <- function(fen, move) {
       if (length(file) == 0) {
         file <- NA
       }
-      rank <- (8:1)[as.numeric(move_parts[4])] # reversed order again here
+      rank <- (8:1)[as.numeric(move_parts[4])] # reversed order here as well
       
       if (capture || piece %in% c("p", "P")) {
         halfmove_clock <- 0
@@ -774,47 +786,49 @@ fen_move <- function(fen, move) {
               }
             }
           }
-        }
-        # Check orthogonally
-        # look left
-        for (f in (target_file:1)[-1]) {
-          if (position_2d[[target_rank]][f] != 1) {
-            if (position_2d[[target_rank]][f] == piece) {
-              source_rank <- target_rank
-              source_file <- f
-            }
-            break
-          }
-        }
-        if (source_file == 0) {
-          # look right
-          for (f in (target_file:8)[-1]) {
-            if (position_2d[[target_rank]][f] != 1) {
-              if (position_2d[[target_rank]][f] == piece) {
-                source_rank <- target_rank
-                source_file <- f
+          # Check orthogonally
+          if (source_file == 0) {
+            # look left
+            for (f in (target_file:1)[-1]) {
+              if (position_2d[[target_rank]][f] != 1) {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- target_rank
+                  source_file <- f
+                }
+                break
               }
-              break
             }
           }
-        }
-        if (source_file == 0) {
-          # look up
-          for (r in (target_rank:1)[-1]) {
-            if (position_2d[[r]][target_file] == piece) {
-              source_rank <- r
-              source_file <- target_file
-              break
+          if (source_file == 0) {
+            # look right
+            for (f in (target_file:8)[-1]) {
+              if (position_2d[[target_rank]][f] != 1) {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- target_rank
+                  source_file <- f
+                }
+                break
+              }
             }
           }
-        }
-        if (source_file == 0) {
-          # look down
-          for (r in (target_rank:8)[-1]) {
-            if (position_2d[[r]][target_file] == piece) {
-              source_rank <- r
-              source_file <- target_file
-              break
+          if (source_file == 0) {
+            # look up
+            for (r in (target_rank:1)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                source_file <- target_file
+                break
+              }
+            }
+          }
+          if (source_file == 0) {
+            # look down
+            for (r in (target_rank:8)[-1]) {
+              if (position_2d[[r]][target_file] == piece) {
+                source_rank <- r
+                source_file <- target_file
+                break
+              }
             }
           }
         }
@@ -825,18 +839,26 @@ fen_move <- function(fen, move) {
           f_deviations <- f_deviations[f_deviations < 9 && f_deviations > 0]
           r_deviations <- target_rank + c(-2,-1,1,2)
           r_deviations <- r_deviations[r_deviations < 9 && r_deviations > 0]
+          print("f_dev=")
+          print(f_deviations)
+          print("r_dev=")
+          print(r_deviations)
           for (f in f_deviations) {
             for (r in r_deviations) {
-              if (abs(f - source_file) + abs(r - source_rank) != 3) {
+              print(paste("r,f =", r, ",", f))
+              if (abs(f - target_file) + abs(r - target_rank) != 3) {
+                print("skip that")
                 next
               }
               if (position_2d[[r]][f] == piece) {
+                print("found piece")
                 source_file <- f
                 source_rank <- r
                 break
               }
             }
             if (source_file != 0) {
+              print("breaking")
               break
             }
           }
@@ -876,6 +898,10 @@ fen_move <- function(fen, move) {
       }
       
       print(paste("source=", source_file, source_rank, "target=", target_file, target_rank))
+      if (source_file == 0 || source_rank == 0) {
+        print("Could not find matching piece. Make sure the move is correct.")
+        return()
+      }
       
       position_2d[[source_rank]][source_file] <- 1
       position_2d[[target_rank]][target_file] <- piece
@@ -925,7 +951,6 @@ fen_move <- function(fen, move) {
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O-O")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "")
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "Nf6")
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "b3")
 fen_move("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1", "e5")
 fen_move("rnbqkbnr/pppp1ppp/8/4p3/8/1P6/P1PPPPPP/RNBQKBNR w KQkq - 0 2", "Bb2")
@@ -935,3 +960,7 @@ fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "d4") ==
   "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
 fen_move("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1", "b6") ==
   "rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2", "Nf3") ==
+  "rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2"
+fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2", "Bb7") ==
+  "rn1qkbnr/pbpppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3"

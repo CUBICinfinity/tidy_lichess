@@ -4,21 +4,7 @@ is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
-# Done:
-# queen
-# bishop
-# rook
-# castling
-# all pawn moves
-# knight
-# king
-# crazyhouse placement
-# correct labels for enpassant flag
-# update halfmove counter
-
-# need to do:
-# testing and debugging
-# error handling, e.g. empty move
+# need to add error handling
 
 fen_move <- function(fen, move) {
   # Parse FEN
@@ -957,45 +943,4 @@ fen_move <- function(fen, move) {
                    ""))
   return(fen)
 }
-
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O")
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "O-O-O")
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "")
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "b3")
-fen_move("rnbqkbnr/pppppppp/8/8/8/1P6/P1PPPPPP/RNBQKBNR b KQkq - 0 1", "e5")
-fen_move("rnbqkbnr/pppp1ppp/8/4p3/8/1P6/P1PPPPPP/RNBQKBNR w KQkq - 0 2", "Bb2")
-
-
-fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "d4") ==
-  "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
-fen_move("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1", "b6") ==
-  "rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
-fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2", "Nf3") ==
-  "rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2"
-fen_move("rnbqkbnr/p1pppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq - 1 2", "Bb7") ==
-  "rn1qkbnr/pbpppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3"
-fen_move("rn1qkbnr/pbpppppp/1p6/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3", "Nc3") ==
-  "rn1qkbnr/pbpppppp/1p6/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 3 3"
-fen_move("rn1qkbnr/pbpppppp/1p6/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 3 3", "Nf6") ==
-  "rn1qkb1r/pbpppppp/1p3n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 4 4"
-fen_move("rn1qkb1r/pbpppppp/1p3n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 4 4", "Bf4") ==
-  "rn1qkb1r/pbpppppp/1p3n2/8/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 5 4"
-fen_move("rn1qkb1r/pbpppppp/1p3n2/8/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 5 4", "d5") ==
-  "rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 0 5"
-fen_move("rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 0 5", "e3") == 
-  "rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5"
-fen_move("rn1qkb1r/pbp1pppp/1p3n2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5", "e6") ==
-  "rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6"
-fen_move("rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6", "Bd3") ==
-  "rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2NBPN2/PPP2PPP/R2QK2R b KQkq - 1 6"
-fen_move("rn1qkb1r/pbp2ppp/1p2pn2/3p4/3P1B2/2NBPN2/PPP2PPP/R2QK2R b KQkq - 1 6", "Bb4") ==
-  "rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPP2PPP/R2QK2R w KQkq - 2 7"
-fen_move("rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPP2PPP/R2QK2R w KQkq - 2 7", "Qd2") ==
-  "rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R b KQkq - 3 7"
-fen_move("rn1qk2r/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R b KQkq - 3 7", "O-O") ==
-  "rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R w KQ - 4 8"
-fen_move("rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R w KQ - 4 8", "O-O-O") ==
-  "rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R b - - 5 8"
-fen_move("rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R b - - 5 8", "Na6") ==
-  "r2q1rk1/pbp2ppp/np2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/2KR3R w - - 6 9"
 

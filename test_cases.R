@@ -78,3 +78,4 @@ fen_move("r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/1n1P1B2/3BP3/2PQ1PPP/2KR3R b - - 1 13"
 fen_move("r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/3P1B2/3nP3/2PQ1PPP/2KR3R w - - 0 14", "Qxd3") ==
   "r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/3P1B2/3QP3/2P2PPP/2KR3R b - - 0 14"
 }
+

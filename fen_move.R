@@ -268,8 +268,10 @@ fen_move <- function(fen, move) {
             # check along file
             # look up
             for (r in (target_rank:1)[-1]) {
-              if (position_2d[[r]][target_file] == piece) {
-                source_rank <- r
+              if (position_2d[[r]][target_file] != "1") {
+                if (position_2d[[r]][target_file] == piece) {
+                  source_rank <- r
+                }
                 break
               }
             }
@@ -314,15 +316,15 @@ fen_move <- function(fen, move) {
                     }
                   }
                   if (valid) {
-                    source_rank <- target_rank - distance
+                    source_rank <- target_rank + distance * direction
                   }
                 } else {
-                  source_rank <- target_rank - distance
+                  source_rank <- target_rank + distance * direction
                 }
               }
             }
             if (source_rank == 0) { # rank < 9 (assumed)
-              source_rank <- target_rank + distance
+              source_rank <- target_rank - distance * direction
             }
           }
         }
@@ -459,16 +461,20 @@ fen_move <- function(fen, move) {
             # check along file
             # look up
             for (f in (target_file:1)[-1]) {
-              if (position_2d[[target_rank]][f] == piece) {
-                source_rank <- f
+              if (position_2d[[target_rank]][f] != "1") {
+                if (position_2d[[target_rank]][f] == piece) {
+                  source_rank <- f
+                }
                 break
               }
             }
             if (source_rank == 0) {
               # look down
               for (f in (target_file:8)[-1]) {
-                if (position_2d[[target_rank]][f] == piece) {
-                  source_rank <- f
+                if (position_2d[[target_rank]][f] != "1") {
+                  if (position_2d[[target_rank]][f] == piece) {
+                    source_rank <- f
+                  }
                   break
                 }
               }
@@ -477,8 +483,11 @@ fen_move <- function(fen, move) {
             # check three points, but also for obstructions
             distance <- abs(source_rank - target_rank)
             direction <- if_else(source_rank < target_rank, -1, 1)
-            # horizontal
+            print(paste("distance is", distance))
+            print(paste("direction is", direction))
+            # vertical
             if (position_2d[[source_rank]][target_file] == piece) {
+              print("looking vertically")
               if (distance > 1) {
                 valid = TRUE
                 for (r in source_file + seq(distance - 1) * direction) {
@@ -494,26 +503,35 @@ fen_move <- function(fen, move) {
                 source_file <- target_file
               }
             }
+            # diagonal
             if (source_file == 0 && target_file - distance > 0) {
+              print(paste("checking", source_rank, ",", target_file + distance * direction))
               if (position_2d[[source_rank]][target_file + distance * direction] == piece) {
+                paste("found")
                 if (distance > 1) {
                   valid = TRUE
                   for (d in seq(distance - 1)) {
+                    print(paste("checking", target_rank + d * direction, ",", target_file + d * direction))
                     if (position_2d[[target_rank + d * direction]][target_file + d * direction] != "1") {
+                      print("invalid path")
                       valid = FALSE
                       break
                     }
                   }
                   if (valid) {
-                    source_file <- target_file - distance
+                    print("path considered valid")
+                    source_file <- target_file + distance * direction
                   }
                 } else {
-                  source_file <- target_file - distance
+                  print("within distance of 1. found.")
+                  source_file <- target_file + distance * direction
                 }
               }
             }
+            # other diagonal
             if (source_file == 0) { # rank < 9 (assumed)
-              source_file <- target_file + distance
+              print("other diagonal")
+              source_file <- target_file - distance * direction
             }
           }
         }
@@ -772,7 +790,7 @@ fen_move <- function(fen, move) {
               spaces <- cbind((target_file:(target_file-dl_space))[-1], 
                               (target_rank:(target_rank+dl_space))[-1])
               for (s in seq(dl_space)) {
-                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
@@ -789,7 +807,7 @@ fen_move <- function(fen, move) {
               spaces <- cbind((target_file:(target_file+ur_space))[-1], 
                               (target_rank:(target_rank-ur_space))[-1])
               for (s in seq(ur_space)) {
-                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
@@ -827,9 +845,11 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look up
             for (r in (target_rank:1)[-1]) {
-              if (position_2d[[r]][target_file] == piece) {
-                source_rank <- r
-                source_file <- target_file
+              if (position_2d[[r]][target_file] != "1") {
+                if (position_2d[[r]][target_file] == piece) {
+                  source_rank <- r
+                  source_file <- target_file
+                }
                 break
               }
             }

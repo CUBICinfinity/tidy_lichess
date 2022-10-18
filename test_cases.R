@@ -1,6 +1,7 @@
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "")
 
 # rook disambiguation
+{
 fen_move("k4r2/8/8/8/8/K4R2/8/5r2 b - - 0 1", "Rf5") ==
   "k7/8/8/5r2/8/K4R2/8/5r2 w - - 1 2"
 fen_move("k4r2/8/1r6/8/8/K4R2/8/8 b - - 0 1", "Rff6") ==
@@ -20,6 +21,30 @@ fen_move("k4r2/5p2/8/8/8/K7/8/5r2 b - - 0 1", "Rf5") ==
   "k4r2/5p2/8/5r2/8/K7/8/8 w - - 1 2"
 fen_move("k4r2/5p2/8/2r5/8/K7/8/5r2 b - - 0 1", "Rff5") ==
   "k4r2/5p2/8/2r2r2/8/K7/8/8 w - - 1 2"
+}
+
+# Queen
+{
+  fen_move("k7/5q2/4q3/8/8/8/q3q3/7K b - - 0 1", "Q6c4") ==
+    "k7/5q2/8/8/2q5/8/q3q3/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/8/8/8/q3q3/7K b - - 0 1", "Qe2c4") ==
+    "k7/5q2/4q3/8/2q5/8/q7/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/8/8/8/q3q3/7K b - - 0 1", "Qac4") ==
+    "k7/5q2/4q3/8/2q5/8/4q3/7K w - - 1 2"
+  
+  fen_move("k7/5q2/4q3/8/8/1p1p4/q3q3/7K b - - 0 1", "Qc4") ==
+    "k7/5q2/8/8/2q5/1p1p4/q3q3/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/3p4/8/1p6/q3q3/7K b - - 0 1", "Qc4") ==
+    "k7/5q2/4q3/3p4/2q5/1p6/q7/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/8/8/1p6/q3q3/7K b - - 0 1", "Q6c4") ==
+    "k7/5q2/8/8/2q5/1p6/q3q3/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/8/8/1p6/q3q3/7K b - - 0 1", "Q2c4") ==
+    "k7/5q2/4q3/8/2q5/1p6/q7/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/8/8/3p4/q3q3/7K b - - 0 1", "Qec4") ==
+    "k7/5q2/8/8/2q5/3p4/q3q3/7K w - - 1 2"
+  fen_move("k7/5q2/4q3/3p4/8/3p4/q3q3/7K b - - 0 1", "Qc4") ==
+    "k7/5q2/4q3/3p4/2q5/3p4/4q3/7K w - - 1 2"
+}
 
 # normal gameplay
 {

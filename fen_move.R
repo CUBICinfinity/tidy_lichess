@@ -4,6 +4,7 @@ is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
+# need to run more tests and fix bugs
 # need to add error handling
 
 fen_move <- function(fen, move) {
@@ -204,21 +205,30 @@ fen_move <- function(fen, move) {
         else if (piece %in% c("r", "R")) {
           # Handle rook moves
           
-          # look up
-          for (r in (target_rank:1)[-1]) {
-            if (position_2d[[r]][target_file] == piece) {
-              source_rank <- r
-              source_file <- target_file
-              break
-            }
-          }
-          if (source_rank == 0) { # not found
-            # look down
-            for (r in (target_rank:8)[-1]) {
+          if (target_file != source_file) {
+            source_rank <- target_rank
+          } else {
+            #print(paste("target_rank =", target_rank))
+            #print(paste("target_file =", target_file))
+            
+            # look up
+            for (r in (target_rank:1)[-1]) {
+              #print(paste("r =", r))
               if (position_2d[[r]][target_file] == piece) {
                 source_rank <- r
                 source_file <- target_file
                 break
+              }
+            }
+            if (source_rank == 0) { # not found
+              # look down
+              for (r in (target_rank:8)[-1]) {
+                #print(paste("r =", r))
+                if (position_2d[[r]][target_file] == piece) {
+                  source_rank <- r
+                  source_file <- target_file
+                  break
+                }
               }
             }
           }
@@ -387,26 +397,29 @@ fen_move <- function(fen, move) {
         
         else if (piece %in% c("r", "R")) {
           # Handle rook moves
-          
-          # look left
-          for (f in (target_file:1)[-1]) {
-            if (position_2d[[target_rank]][f] != 1) {
-              if (position_2d[[target_rank]][f] == piece) {
-                source_rank <- target_rank
-                source_file <- f
-              }
-              break
-            }
-          }
-          if (source_file == 0) { # not found
-            # look right
-            for (f in (target_file:8)[-1]) {
-              if (position_2d[[target_rank]][f] != 1) {
+          if (source_rank != target_rank) {
+            source_file <- target_file
+          } else {
+            # look left
+            for (f in (target_file:1)[-1]) {
+              if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece) {
                   source_rank <- target_rank
                   source_file <- f
                 }
                 break
+              }
+            }
+            if (source_file == 0) { # not found
+              # look right
+              for (f in (target_file:8)[-1]) {
+                if (position_2d[[target_rank]][f] != "1") {
+                  if (position_2d[[target_rank]][f] == piece) {
+                    source_rank <- target_rank
+                    source_file <- f
+                  }
+                  break
+                }
               }
             }
           }
@@ -578,7 +591,7 @@ fen_move <- function(fen, move) {
           # Handle rook moves
           # look left
           for (f in (target_file:1)[-1]) {
-            if (position_2d[[target_rank]][f] != 1) {
+            if (position_2d[[target_rank]][f] != "1") {
               if (position_2d[[target_rank]][f] == piece) {
                 source_rank <- target_rank
                 source_file <- f
@@ -589,7 +602,7 @@ fen_move <- function(fen, move) {
           if (source_file == 0) { # not found
             # look right
             for (f in (target_file:8)[-1]) {
-              if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece) {
                   source_rank <- target_rank
                   source_file <- f
@@ -782,7 +795,7 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look left
             for (f in (target_file:1)[-1]) {
-              if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece) {
                   source_rank <- target_rank
                   source_file <- f
@@ -794,7 +807,7 @@ fen_move <- function(fen, move) {
           if (source_file == 0) {
             # look right
             for (f in (target_file:8)[-1]) {
-              if (position_2d[[target_rank]][f] != 1) {
+              if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece) {
                   source_rank <- target_rank
                   source_file <- f
@@ -895,7 +908,7 @@ fen_move <- function(fen, move) {
         return()
       }
       
-      position_2d[[source_rank]][source_file] <- 1
+      position_2d[[source_rank]][source_file] <- "1"
       position_2d[[target_rank]][target_file] <- piece
     }
     

@@ -7,9 +7,22 @@ fen_move("k4r2/8/1r6/8/8/K4R2/8/8 b - - 0 1", "Rff6") ==
   "k7/8/1r3r2/8/8/K4R2/8/8 w - - 1 2"
 fen_move("k4r2/8/1r4r1/8/8/K7/8/5r2 b - - 0 1", "Rbf6") ==
   "k4r2/8/5rr1/8/8/K7/8/5r2 w - - 1 2"
+fen_move("k4r2/8/1r4r1/8/8/K7/8/5r2 b - - 0 1", "Rgf6") ==
+  "k4r2/8/1r3r2/8/8/K7/8/5r2 w - - 1 2"
+fen_move("k4r2/8/1r1r2r1/8/5r2/K7/8/5r2 b - - 0 1", "Rdf6") ==
+  "k4r2/8/1r3rr1/8/5r2/K7/8/5r2 w - - 1 2"
+fen_move("k4r2/8/1r1r2r1/8/5r2/K7/8/5r2 b - - 0 1", "R4f6") ==
+  "k4r2/8/1r1r1rr1/8/8/K7/8/5r2 w - - 1 2"
+fen_move("k4r2/8/1r1r2r1/8/5r2/K7/8/5r2 b - - 0 1", "R8f6") ==
+  "k7/8/1r1r1rr1/8/5r2/K7/8/5r2 w - - 1 2"
 
+fen_move("k4r2/5p2/8/8/8/K7/8/5r2 b - - 0 1", "Rf5") ==
+  "k4r2/5p2/8/5r2/8/K7/8/8 w - - 1 2"
+fen_move("k4r2/5p2/8/2r5/8/K7/8/5r2 b - - 0 1", "Rff5") ==
+  "k4r2/5p2/8/2r2r2/8/K7/8/8 w - - 1 2"
 
 # normal gameplay
+{
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "d4") ==
   "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
 fen_move("rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1", "b6") ==
@@ -64,3 +77,4 @@ fen_move("r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/1n1P1B2/3BP3/2PQ1PPP/2KR3R b - - 1 13"
   "r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/3P1B2/3nP3/2PQ1PPP/2KR3R w - - 0 14"
 fen_move("r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/3P1B2/3nP3/2PQ1PPP/2KR3R w - - 0 14", "Qxd3") ==
   "r2q1rk1/pbp2p1p/1p2pnp1/1N1p2N1/3P1B2/3QP3/2P2PPP/2KR3R b - - 0 14"
+}

@@ -1,2 +1,2 @@
 # tidy_lichess
-Analyze your LiChess games
+Analyze your lichess games

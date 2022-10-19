@@ -10,6 +10,9 @@ is_void <- function(x) {
 
 
 ###
+# TODO: Fix: THERE ARE STILL SOME BUGS IN THIS CODE
+# TODO: Add more error handling
+#
 # `fen_move(fen, move)` gets the next FEN position in chess, 
 # given the current `fen` position and the algebraic `move`
 #
@@ -26,9 +29,6 @@ is_void <- function(x) {
 ###
 
 fen_move <- function(fen, move) {
-  # may need to run more test cases
-  # may want to add more error handling
-  
   if (is_void(fen) || is_void(move)) {
     stop("Missing inputs!")
   }

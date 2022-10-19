@@ -1,13 +1,16 @@
 library(tidyverse)
 
-###
-username <- "cubicinfinity"
-file_destination <- "data/lichess_cubicinfinity_2022-10-19.pgn"
-link <- paste0("https://lichess.org/api/games/user/", username)
-download.file(link, file_destination)
+### Run this only once
+# username <- "cubicinfinity"
+# file_destination <- "data/lichess_cubicinfinity_2022-10-19.pgn"
+# link <- paste0("https://lichess.org/api/games/user/", username)
+# download.file(link, file_destination)
 ###
 
 source("fen_move.R")
+
+# Select number of moves to add to tibble. These are half-moves, not full-moves.
+number_of_turns <- 10
 
 pgn <- read_lines("data/lichess_cubicinfinity_2022-10-19.pgn")
 
@@ -42,16 +45,12 @@ for (line in pgn) {
 }
 games$PGN <- moves
 
+# The data may be pivoted longer later if desired.
+for (i in 1:number_of_turns) {
+  eval(parse(text = paste0("games$turn_", i, " <- ''")))
+}
+
 # Convert PGN moves to FEN
-  # start with initial position (use FEN if from position game)
-    # split empty spaces and add to space
-    # identify space moved from and replace with blank (unless crazyhouse @)
-    # concatenate and fill empty spaces
-    # update turn (b|w)
-    # update castling ability
-    # update en passant target
-    # update halfmove, or simply add a space if ignoring
-    # update move number
 for (i in 1:nrow(games)) {
   if (is.na(games[i,]$FEN)) {
     position <- "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -64,36 +63,11 @@ for (i in 1:nrow(games)) {
     str_remove(" ?((1\\/2)|0|1)-((1\\/2)|0|1)$") %>% 
     # Get just the moves themselves
     str_remove_all("\\d+\\.+ ") %>% 
-    str_split(" ")
+    str_split(" ") %>% 
+    unlist()
   
-  for (move in game_moves) {
-    position <- fen_move(position, move)
+  for (t in 1:number_of_turns) {
+    position <- fen_move(position, game_moves[t])
+    games[i, length(games) - (number_of_turns - t)] <- position
   }
 }
-
-
-
-# Arrange first K FEN moves into tibble
-K <- 7
-game_positions <- tibble()
-positions <- c()
-number <- 0
-for (line in fen) {
-  new_number <- as.numeric(str_extract(line, '\\d+(?=")'))
-  if (new_number < number || new_number >= K+1) {
-    if (length(positions) > 0) {
-      new_row <- as_tibble(t(positions))
-      colnames(new_row) <- paste0("p", 1:length(positions))
-      game_positions <- game_positions %>% 
-        bind_rows(new_row)
-    }
-    positions <- c()
-  }
-  if (new_number < K+1) {
-    positions <- 
-      append(positions, str_extract(line, '[^"]+(?=  )'))
-  }
-  number <- new_number
-}
-
-View(game_positions)

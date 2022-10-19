@@ -241,23 +241,30 @@ fen_move <- function(fen, move) {
         else if (piece %in% c("b", "B")) {
           # Handle bishop moves
           distance <- abs(source_file - target_file)
-          if (target_rank + distance < 9) {
+          direction <- if_else(source_file < target_file, -1, 1)
+          print(paste("distance is", distance))
+          print(paste("direction is", direction))
+          if (0 < target_rank + distance*direction && target_rank + distance*direction < 9) {
+            valid <- TRUE
             if (distance > 1) {
               # Check for obstructions
-              valid <- TRUE
-              for (d in (0:(distance - 1))[-1]) {
-                if (position_2d[[target_rank + d]][source_file + d] != "1") {
+              for (d in (0:(distance - 1))[-1] * direction) {
+                print(paste("d =", d))
+                if (position_2d[[target_rank + d]][target_file + d] != "1") {
+                  print("invalid path")
                   valid <- FALSE
+                  break
                 }
               }
             }
             if (valid == TRUE &&
-                position_2d[[target_rank + distance]][target_file] == piece) {
-              source_rank <- target_rank + distance
+                position_2d[[target_rank + distance * direction]][source_file] == piece) {
+              source_rank <- target_rank + distance * direction
             }
-          } else {
-            # assume other direction is correct
-            source_rank <- target_rank - distance
+          } 
+          if (source_rank == 0) {
+            # assume other angle is correct
+            source_rank <- target_rank - distance * direction
           }
         }
         
@@ -439,10 +446,10 @@ fen_move <- function(fen, move) {
         else if (piece %in% c("b", "B")) {
           # Handle bishop moves
           distance <- abs(source_rank - target_rank)
-          if (target_file + distance < 9) {
+          if (0 < target_rank + distance*direction && target_rank + distance*direction < 9) {
+            valid <- TRUE
             if (distance > 1) {
               # Check for obstructions
-              valid <- TRUE
               for (d in (0:(distance - 1))[-1]) {
                 if (position_2d[[target_rank - d]][source_file + d] != "1") {
                   valid <- FALSE
@@ -453,7 +460,8 @@ fen_move <- function(fen, move) {
                 position_2d[[target_rank - distance]][target_file] == piece) {
               source_file <- target_file + distance
             }
-          } else {
+          } 
+          if (source_file == 0) {
             # assume other direction is correct
             source_file <- target_file - distance
           }
@@ -719,7 +727,7 @@ fen_move <- function(fen, move) {
               print(spaces)
               for (s in seq(dl_space)) {
                 print(paste("s =", s))
-                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
@@ -736,7 +744,7 @@ fen_move <- function(fen, move) {
               spaces <- cbind((target_file:(target_file+ur_space))[-1], 
                               (target_rank:(target_rank-ur_space))[-1])
               for (s in seq(ur_space)) {
-                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
+                if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]

@@ -68,6 +68,45 @@ fen_move("k4r2/5p2/8/2r5/8/K7/8/5r2 b - - 0 1", "Rff5") ==
     "k1q5/8/4q3/1q1p4/q1q3q1/8/2q5/7K w - - 1 2"
 }
 
+# bishop
+{
+  fen_move("k7/8/5b2/2b1p3/8/8/5b2/b5bK b - - 0 1", "Bcd4") ==
+    "k7/8/5b2/4p3/3b4/8/5b2/b5bK w - - 1 2"
+  fen_move("k7/8/5b2/2b1p3/8/8/5b2/b5bK b - - 0 1", "Bfd4") ==
+    "k7/8/5b2/2b1p3/3b4/8/8/b5bK w - - 1 2"
+  fen_move("k7/8/5b2/2b1p3/8/8/5b2/b5bK b - - 0 1", "Bad4") ==
+    "k7/8/5b2/2b1p3/3b4/8/5b2/6bK w - - 1 2"
+  
+  fen_move("k7/b5b1/5p2/8/8/8/1p3p2/b5bK b - - 0 1", "Bd4") == 
+    "k7/6b1/5p2/8/3b4/8/1p3p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/1p6/8/8/8/1p3p2/b5bK b - - 0 1", "Bd4") ==
+    "k7/b7/1p6/8/3b4/8/1p3p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/1p3p2/8/8/8/1p6/b5bK b - - 0 1", "Bd4") ==
+    "k7/b5b1/1p3p2/8/3b4/8/1p6/b6K w - - 1 2"
+  fen_move("k7/b5b1/1p3p2/8/8/8/5p2/b5bK b - - 0 1", "Bd4") ==
+    "k7/b5b1/1p3p2/8/3b4/8/5p2/6bK w - - 1 2"
+  fen_move("k7/b5b1/1p3p2/8/8/8/8/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/1p6/8/8/8/5p2/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/5p2/8/8/8/5p2/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/1p6/8/8/8/1p6/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/5p2/8/8/8/1p6/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/8/8/8/8/1p3p2/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/8/8/8/8/1p6/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/1p6/8/8/8/8/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/5p2/8/8/8/8/b5bK b - - 0 1", "") ==
+    ""
+  fen_move("k7/b5b1/8/8/8/8/5p2/b5bK b - - 0 1", "") ==
+    ""
+}
+
 # normal gameplay
 {
 fen_move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", "d4") ==

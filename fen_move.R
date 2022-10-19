@@ -11,7 +11,7 @@ is_void <- function(x) {
 
 ###
 # TODO: Fix: THERE ARE STILL SOME BUGS IN THIS CODE
-# TODO: Add more error handling
+# TODO: Add more error handling.
 #
 # `fen_move(fen, move)` gets the next FEN position in chess, 
 # given the current `fen` position and the algebraic `move`

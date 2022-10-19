@@ -1,5 +1,9 @@
 library(tidyverse)
 
+
+# Need to fix r2q1rk1/ppp2ppp/2n1pn2/3p4/3P1Bb1/P1PBPN2/2P1QPPP/R3K2R b KQ - 0 9
+# after bxc3 for https://lichess.org/njvAirSv#17
+
 ### Run this only once
 # username <- "cubicinfinity"
 # file_destination <- "data/lichess_cubicinfinity_2022-10-19.pgn"
@@ -10,7 +14,7 @@ library(tidyverse)
 source("fen_move.R")
 
 # Select number of moves to add to tibble. These are half-moves, not full-moves.
-number_of_turns <- 10
+number_of_turns <- 50
 
 pgn <- read_lines("data/lichess_cubicinfinity_2022-10-19.pgn")
 
@@ -67,6 +71,9 @@ for (i in 1:nrow(games)) {
     unlist()
   
   for (t in 1:number_of_turns) {
+    if (t > length(game_moves)) {
+      break
+    }
     position <- fen_move(position, game_moves[t])
     games[i, length(games) - (number_of_turns - t)] <- position
   }

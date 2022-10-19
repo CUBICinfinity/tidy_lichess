@@ -85,26 +85,75 @@ fen_move("k4r2/5p2/8/2r5/8/K7/8/5r2 b - - 0 1", "Rff5") ==
     "k7/b5b1/1p3p2/8/3b4/8/1p6/b6K w - - 1 2"
   fen_move("k7/b5b1/1p3p2/8/8/8/5p2/b5bK b - - 0 1", "Bd4") ==
     "k7/b5b1/1p3p2/8/3b4/8/5p2/6bK w - - 1 2"
-  fen_move("k7/b5b1/1p3p2/8/8/8/8/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/1p6/8/8/8/5p2/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/5p2/8/8/8/5p2/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/1p6/8/8/8/1p6/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/5p2/8/8/8/1p6/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/8/8/8/8/1p3p2/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/8/8/8/8/1p6/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/1p6/8/8/8/8/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/5p2/8/8/8/8/b5bK b - - 0 1", "") ==
-    ""
-  fen_move("k7/b5b1/8/8/8/8/5p2/b5bK b - - 0 1", "") ==
-    ""
+  
+  fen_move("k7/b5b1/1p3p2/8/8/8/8/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b5b1/1p3p2/8/3b4/8/8/b6K w - - 1 2"
+  fen_move("k7/b5b1/1p3p2/8/8/8/8/b5bK b - - 0 1", "Bad4") ==
+    "k7/b5b1/1p3p2/8/3b4/8/8/6bK w - - 1 2"
+  
+  fen_move("k7/b5b1/1p6/8/8/8/5p2/b5bK b - - 0 1", "Bad4") ==
+    "k7/b5b1/1p6/8/3b4/8/5p2/6bK w - - 1 2"
+  fen_move("k7/b5b1/1p6/8/8/8/5p2/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b7/1p6/8/3b4/8/5p2/b5bK w - - 1 2"
+  
+  fen_move("k7/b5b1/5p2/8/8/8/5p2/b5bK b - - 0 1", "B7d4") ==
+    "k7/6b1/5p2/8/3b4/8/5p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/5p2/8/8/8/5p2/b5bK b - - 0 1", "B1d4") ==
+    "k7/b5b1/5p2/8/3b4/8/5p2/6bK w - - 1 2"
+  
+  fen_move("k7/b5b1/1p6/8/8/8/1p6/b5bK b - - 0 1", "B7d4") ==
+    "k7/b7/1p6/8/3b4/8/1p6/b5bK w - - 1 2"
+  fen_move("k7/b5b1/1p6/8/8/8/1p6/b5bK b - - 0 1", "B1d4") ==
+    "k7/b5b1/1p6/8/3b4/8/1p6/b6K w - - 1 2"
+  
+  fen_move("k7/b5b1/5p2/8/8/8/1p6/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b5b1/5p2/8/3b4/8/1p6/b6K w - - 1 2"
+  fen_move("k7/b5b1/5p2/8/8/8/1p6/b5bK b - - 0 1", "Bad4") ==
+    "k7/6b1/5p2/8/3b4/8/1p6/b5bK w - - 1 2"
+  
+  fen_move("k7/b5b1/8/8/8/8/1p3p2/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b7/8/8/3b4/8/1p3p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/8/8/8/8/1p3p2/b5bK b - - 0 1", "Bad4") ==
+    "k7/6b1/8/8/3b4/8/1p3p2/b5bK w - - 1 2"
+  
+  fen_move("k7/b5b1/8/8/8/8/1p6/b5bK b - - 0 1", "B1d4") ==
+    "k7/b5b1/8/8/3b4/8/1p6/b6K w - - 1 2"
+  fen_move("k7/b5b1/8/8/8/8/1p6/b5bK b - - 0 1", "Bg7d4") ==
+    "k7/b7/8/8/3b4/8/1p6/b5bK w - - 1 2"
+  fen_move("k7/b5b1/8/8/8/8/1p6/b5bK b - - 0 1", "Bad4") ==
+    "k7/6b1/8/8/3b4/8/1p6/b5bK w - - 1 2"
+  
+  fen_move("k7/b5b1/1p6/8/8/8/8/b5bK b - - 0 1", "B7d4") ==
+    "k7/b7/1p6/8/3b4/8/8/b5bK w - - 1 2"
+  fen_move("k7/b5b1/1p6/8/8/8/8/b5bK b - - 0 1", "Bg1d4") ==
+    "k7/b5b1/1p6/8/3b4/8/8/b6K w - - 1 2"
+  fen_move("k7/b5b1/1p6/8/8/8/8/b5bK b - - 0 1", "Bad4") ==
+    "k7/b5b1/1p6/8/3b4/8/8/6bK w - - 1 2"
+  
+  fen_move("k7/b5b1/5p2/8/8/8/8/b5bK b - - 0 1", "B7d4") ==
+    "k7/6b1/5p2/8/3b4/8/8/b5bK w - - 1 2"
+  fen_move("k7/b5b1/5p2/8/8/8/8/b5bK b - - 0 1", "Ba1d4") ==
+    "k7/b5b1/5p2/8/3b4/8/8/6bK w - - 1 2"
+  fen_move("k7/b5b1/5p2/8/8/8/8/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b5b1/5p2/8/3b4/8/8/b6K w - - 1 2"
+  
+  fen_move("k7/b5b1/8/8/8/8/5p2/b5bK b - - 0 1", "Bgd4") ==
+    "k7/b7/8/8/3b4/8/5p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/8/8/8/8/5p2/b5bK b - - 0 1", "Ba7d4") ==
+    "k7/6b1/8/8/3b4/8/5p2/b5bK w - - 1 2"
+  fen_move("k7/b5b1/8/8/8/8/5p2/b5bK b - - 0 1", "B1d4") ==
+    "k7/b5b1/8/8/3b4/8/5p2/6bK w - - 1 2"
+  
+  
+  fen_move("k7/1p2b3/8/8/8/4b3/8/7K b - - 0 1", "B3g5") ==
+    "k7/1p2b3/8/6b1/8/8/8/7K w - - 1 2"
+  fen_move("k7/1p2b3/8/8/8/4b3/8/7K b - - 0 1", "B7g5") ==
+    "k7/1p6/8/6b1/8/4b3/8/7K w - - 1 2"
+  
+  fen_move("k7/1p1b4/8/8/8/3b4/8/7K b - - 0 1", "B3b5") ==
+    "k7/1p1b4/8/1b6/8/8/8/7K w - - 1 2"
+  fen_move("k7/1p1b4/8/8/8/3b4/8/7K b - - 0 1", "B7b5") ==
+    "k7/1p6/8/1b6/8/3b4/8/7K w - - 1 2"
 }
 
 # normal gameplay

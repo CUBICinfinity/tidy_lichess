@@ -446,24 +446,30 @@ fen_move <- function(fen, move) {
         else if (piece %in% c("b", "B")) {
           # Handle bishop moves
           distance <- abs(source_rank - target_rank)
-          if (0 < target_rank + distance*direction && target_rank + distance*direction < 9) {
+          direction <- if_else(source_rank < target_rank, -1, 1)
+          print(paste("distance =", distance))
+          print(paste("direction =", direction))
+          if (0 < target_file + distance*direction && target_file + distance*direction < 9) {
+            print("looking along first direction")
             valid <- TRUE
             if (distance > 1) {
               # Check for obstructions
-              for (d in (0:(distance - 1))[-1]) {
-                if (position_2d[[target_rank - d]][source_file + d] != "1") {
+              for (d in (0:(distance - 1))[-1] * direction) {
+                print(paste("looking at", target_rank + d, target_file + d))
+                if (position_2d[[target_rank + d]][target_file + d] != "1") {
+                  print("invalid path")
                   valid <- FALSE
                 }
               }
             }
             if (valid == TRUE &&
-                position_2d[[target_rank - distance]][target_file] == piece) {
-              source_file <- target_file + distance
+                position_2d[[source_rank]][target_file + distance * direction] == piece) {
+              source_file <- target_file + distance * direction
             }
           } 
           if (source_file == 0) {
             # assume other direction is correct
-            source_file <- target_file - distance
+            source_file <- target_file - distance * direction
           }
         }
         

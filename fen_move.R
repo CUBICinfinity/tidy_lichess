@@ -288,11 +288,15 @@ fen_move <- function(fen, move) {
             # check three points, but also for obstructions
             distance <- abs(source_file - target_file)
             direction <- if_else(source_file < target_file, -1, 1)
+            print(paste("distance is", distance))
+            print(paste("direction is", direction))
             # horizontal
             if (position_2d[[target_rank]][source_file] == piece) {
+              print("candidate piece found horizontally")
               if (distance > 1) {
                 valid = TRUE
-                for (f in source_file + seq(distance - 1) * direction) {
+                for (f in source_file + seq(distance - 1) * direction * -1) {
+                  print(paste("f =", f))
                   if (position_2d[[target_rank]][f] != "1") {
                     valid = FALSE
                     break
@@ -302,6 +306,7 @@ fen_move <- function(fen, move) {
                   source_rank <- target_rank
                 }
               } else {
+                print("right beside.")
                 source_rank <- target_rank
               }
             }
@@ -490,7 +495,7 @@ fen_move <- function(fen, move) {
               print("looking vertically")
               if (distance > 1) {
                 valid = TRUE
-                for (r in source_file + seq(distance - 1) * direction) {
+                for (r in source_rank + seq(distance - 1) * direction * -1) {
                   if (position_2d[[r]][target_file] != "1") {
                     valid = FALSE
                     break

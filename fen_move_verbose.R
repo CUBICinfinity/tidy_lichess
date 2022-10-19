@@ -4,16 +4,13 @@ is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
-# may need to run more test cases
-# may want to add more error handling
+# need to run more tests and fix bugs
+# need to add error handling
 
 fen_move <- function(fen, move) {
-  if (is_void(fen) || is_void(move)) {
-    stop("Missing inputs!")
-  }
-  
   # Parse FEN
   parsed_fen <- str_match(fen, "([^ ]+) ([wb]) ([KQkq-]+) ([a-h-][1-8]?) (\\d+) (\\d+)( \\+(\\d+)\\+(\\d+))?")
+  print(parsed_fen)
   
   position <- parsed_fen[2]
   turn <- parsed_fen[3]
@@ -111,9 +108,12 @@ fen_move <- function(fen, move) {
     
     # OTHER MOVES
   } else {
+    print("normal kind of move")
     # [piece?, file?, rank?, capture?, ch_place?, target, promotion, check(mate)?]
     move_parts <- str_match(move, "([RNBQKrnbqk]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
+    print(move_parts)
     
+    print(paste("position=", position))
     position_2d <- position %>% 
       str_split("\\/") %>% 
       unlist() %>% 
@@ -135,8 +135,11 @@ fen_move <- function(fen, move) {
                        move_parts[2] == "Q" ~ "q",
                        move_parts[2] == "K" ~ "k"))
     
+    print(paste("piece is", piece))
+    
     capture <- move_parts[5] != ""
     target <- unlist(str_split(move_parts[7], ""))
+    print(paste("target =",target))
     target_file <- as.numeric(charToRaw(target[1])) - 96
     if (length(target_file) == 0) {
       # this shouldn't happen. I guess this is temporary caution
@@ -145,10 +148,14 @@ fen_move <- function(fen, move) {
     target_rank <- (8:1)[as.numeric(target[2])] # We're reversing the order to match the way I've constructed position_2d
     
     if (! is_void(move_parts[6])) {
+      print("crazyhouse placement")
       # crazyhouse place. just change at target
       position_2d[[target_rank]][target_file] <- piece
       
     } else {
+      
+      print(paste("moving to", target_file, target_rank))
+      
       file <- as.numeric(charToRaw(move_parts[3])) - 96
       if (length(file) == 0) {
         file <- NA
@@ -164,11 +171,13 @@ fen_move <- function(fen, move) {
       # Find Source
       # Simply pick first valid source because PGN disambiguates for us.
       if (! is.na(file) && ! is.na(rank)) {
+        print("source given")
         # source already given
         source_file <- file
         source_rank <- rank
         
       } else if (! is.na(file)) {
+        print("source file given")
         source_file <- file
         source_rank <- 0
         # determine source rank
@@ -199,8 +208,12 @@ fen_move <- function(fen, move) {
           if (target_file != source_file) {
             source_rank <- target_rank
           } else {
+            print(paste("target_rank =", target_rank))
+            print(paste("target_file =", target_file))
+            
             # look up
             for (r in (target_rank:1)[-1]) {
+              print(paste("r =", r))
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece) {
                   source_rank <- r
@@ -212,6 +225,7 @@ fen_move <- function(fen, move) {
             if (source_rank == 0) { # not found
               # look down
               for (r in (target_rank:8)[-1]) {
+                print(paste("r =", r))
                 if (position_2d[[r]][target_file] != "1") {
                   if (position_2d[[r]][target_file] == piece) {
                     source_rank <- r
@@ -228,12 +242,16 @@ fen_move <- function(fen, move) {
           # Handle bishop moves
           distance <- abs(source_file - target_file)
           direction <- if_else(source_file < target_file, -1, 1)
+          print(paste("distance is", distance))
+          print(paste("direction is", direction))
           if (0 < target_rank + distance*direction && target_rank + distance*direction < 9) {
             valid <- TRUE
             if (distance > 1) {
               # Check for obstructions
               for (d in (0:(distance - 1))[-1] * direction) {
+                print(paste("d =", d))
                 if (position_2d[[target_rank + d]][target_file + d] != "1") {
+                  print("invalid path")
                   valid <- FALSE
                   break
                 }
@@ -277,11 +295,15 @@ fen_move <- function(fen, move) {
             # check three points, but also for obstructions
             distance <- abs(source_file - target_file)
             direction <- if_else(source_file < target_file, -1, 1)
+            print(paste("distance is", distance))
+            print(paste("direction is", direction))
             # horizontal
             if (position_2d[[target_rank]][source_file] == piece) {
+              print("candidate piece found horizontally")
               if (distance > 1) {
                 valid = TRUE
                 for (f in source_file + seq(distance - 1) * direction * -1) {
+                  print(paste("f =", f))
                   if (position_2d[[target_rank]][f] != "1") {
                     valid = FALSE
                     break
@@ -291,6 +313,7 @@ fen_move <- function(fen, move) {
                   source_rank <- target_rank
                 }
               } else {
+                print("right beside.")
                 source_rank <- target_rank
               }
             }
@@ -352,6 +375,7 @@ fen_move <- function(fen, move) {
         
         
       } else if (! is.na(rank)) {
+        print("source rank given")
         source_rank <- rank
         source_file <- 0
         
@@ -423,12 +447,17 @@ fen_move <- function(fen, move) {
           # Handle bishop moves
           distance <- abs(source_rank - target_rank)
           direction <- if_else(source_rank < target_rank, -1, 1)
+          print(paste("distance =", distance))
+          print(paste("direction =", direction))
           if (0 < target_file + distance*direction && target_file + distance*direction < 9) {
+            print("looking along first direction")
             valid <- TRUE
             if (distance > 1) {
               # Check for obstructions
               for (d in (0:(distance - 1))[-1] * direction) {
+                print(paste("looking at", target_rank + d, target_file + d))
                 if (position_2d[[target_rank + d]][target_file + d] != "1") {
+                  print("invalid path")
                   valid <- FALSE
                 }
               }
@@ -473,8 +502,11 @@ fen_move <- function(fen, move) {
             # check three points, but also for obstructions
             distance <- abs(source_rank - target_rank)
             direction <- if_else(source_rank < target_rank, -1, 1)
+            print(paste("distance is", distance))
+            print(paste("direction is", direction))
             # vertical
             if (position_2d[[source_rank]][target_file] == piece) {
+              print("looking vertically")
               if (distance > 1) {
                 valid = TRUE
                 for (r in source_rank + seq(distance - 1) * direction * -1) {
@@ -492,25 +524,32 @@ fen_move <- function(fen, move) {
             }
             # diagonal
             if (source_file == 0 && target_file - distance > 0) {
+              print(paste("checking", source_rank, ",", target_file + distance * direction))
               if (position_2d[[source_rank]][target_file + distance * direction] == piece) {
+                paste("found")
                 if (distance > 1) {
                   valid = TRUE
                   for (d in seq(distance - 1)) {
+                    print(paste("checking", target_rank + d * direction, ",", target_file + d * direction))
                     if (position_2d[[target_rank + d * direction]][target_file + d * direction] != "1") {
+                      print("invalid path")
                       valid = FALSE
                       break
                     }
                   }
                   if (valid) {
+                    print("path considered valid")
                     source_file <- target_file + distance * direction
                   }
                 } else {
+                  print("within distance of 1. found.")
                   source_file <- target_file + distance * direction
                 }
               }
             }
             # other diagonal
             if (source_file == 0) { # rank < 9 (assumed)
+              print("other diagonal")
               source_file <- target_file - distance * direction
             }
           }
@@ -549,6 +588,7 @@ fen_move <- function(fen, move) {
         
         
       } else {
+        print("source not given")
         # determine source both rank and file
         source_file <- 0
         source_rank <- 0
@@ -645,10 +685,15 @@ fen_move <- function(fen, move) {
           dl_space <- min(c(target_file - 1, 8 - target_rank))
           ur_space <- min(c(8 - target_file, target_rank - 1))
           # look up-left
+          print("looking up-left")
           if (ul_space > 0) {
+            #print(paste("ul space is", ul_space))
             spaces <- cbind((target_file:(target_file-ul_space))[-1], 
                             (target_rank:(target_rank-ul_space))[-1])
+            #print(spaces)
+            #print(position_2d)
             for (s in seq(ul_space)) {
+              #print(paste("spaces[s,2] =", spaces[s,2], "spaces[s,1] =", spaces[s,1]))
               if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece) {
                   source_rank <- spaces[s,2]
@@ -660,6 +705,7 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look down-right
+            print("looking down-right")
             if (dr_space > 0) {
               spaces <- cbind((target_file:(target_file+dr_space))[-1], 
                               (target_rank:(target_rank+dr_space))[-1])
@@ -676,10 +722,17 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look down-left
+            print("looking down-left")
+            print(paste("dl_space is", dl_space))
             if (dl_space > 0) {
+              print((target_file:(target_file-dl_space))[-1])
+              print((target_rank:(target_rank+dl_space))[-1])
               spaces <- cbind((target_file:(target_file-dl_space))[-1], 
                               (target_rank:(target_rank+dl_space))[-1])
+              print("spaces =")
+              print(spaces)
               for (s in seq(dl_space)) {
+                print(paste("s =", s))
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece) {
                     source_rank <- spaces[s,2]
@@ -692,6 +745,7 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look up-right
+            print("looking up-right")
             if (ur_space > 0) {
               spaces <- cbind((target_file:(target_file+ur_space))[-1], 
                               (target_rank:(target_rank-ur_space))[-1])
@@ -717,6 +771,7 @@ fen_move <- function(fen, move) {
           dl_space <- min(c(target_file - 1, 8 - target_rank))
           ur_space <- min(c(8 - target_file, target_rank - 1))
           # look up-left
+          print("looking up-left")
           if (ul_space > 0) {
             spaces <- cbind((target_file:(target_file-ul_space))[-1], 
                             (target_rank:(target_rank-ul_space))[-1])
@@ -732,6 +787,7 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look down-right
+            print("looking down-right")
             if (dr_space > 0) {
               spaces <- cbind((target_file:(target_file+dr_space))[-1], 
                               (target_rank:(target_rank+dr_space))[-1])
@@ -748,6 +804,7 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look down-left
+            print("looking down-left")
             if (dl_space > 0) {
               spaces <- cbind((target_file:(target_file-dl_space))[-1], 
                               (target_rank:(target_rank+dl_space))[-1])
@@ -764,6 +821,7 @@ fen_move <- function(fen, move) {
           }
           if (source_file == 0) {
             # look up-right
+            print("looking up-right")
             if (ur_space > 0) {
               spaces <- cbind((target_file:(target_file+ur_space))[-1], 
                               (target_rank:(target_rank-ur_space))[-1])
@@ -833,18 +891,26 @@ fen_move <- function(fen, move) {
           f_deviations <- f_deviations[f_deviations < 9 & f_deviations > 0]
           r_deviations <- target_rank + c(-2,-1,1,2)
           r_deviations <- r_deviations[r_deviations < 9 & r_deviations > 0]
+          print("f_dev=")
+          print(f_deviations)
+          print("r_dev=")
+          print(r_deviations)
           for (f in f_deviations) {
             for (r in r_deviations) {
+              print(paste("r,f =", r, ",", f))
               if (abs(f - target_file) + abs(r - target_rank) != 3) {
+                print("skip that")
                 next
               }
               if (position_2d[[r]][f] == piece) {
+                print("found piece")
                 source_file <- f
                 source_rank <- r
                 break
               }
             }
             if (source_file != 0) {
+              print("breaking")
               break
             }
           }
@@ -883,8 +949,9 @@ fen_move <- function(fen, move) {
         piece <- substr(move_parts[8], 2, 2)
       }
       
+      print(paste("source=", source_file, source_rank, "target=", target_file, target_rank))
       if (source_file == 0 || source_rank == 0) {
-        stop("Could not find matching piece. Make sure the move is correct.")
+        print("Could not find matching piece. Make sure the move is correct.")
         return()
       }
       

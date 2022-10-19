@@ -1,4 +1,4 @@
-# tidy_lichess
+# tidy_lichess - Alpha 1.0.0
 Analyze your lichess games
 ---
 

@@ -1,13 +1,34 @@
-# library(tidyverse)
+if (! require(tidyverse)) {
+  stop("`library(tidyverse)` is required!")
+}
 
+
+# helper function
 is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
-# may need to run more test cases
-# may want to add more error handling
+
+###
+# `fen_move(fen, move)` gets the next FEN position in chess, 
+# given the current `fen` position and the algebraic `move`
+#
+# https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+# https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+#
+# Usage example (performs an A-side castle): 
+# fen_move("rn1q1rk1/pbp2ppp/1p2pn2/3p4/1b1P1B2/2NBPN2/PPPQ1PPP/R3K2R w KQ - 4 8", "O-O-O")
+# 
+# The purpose of this function is for reconstructing games from PGN notation. 
+# It does not check the legality of a move: Instead, it attempts to find the 
+# referenced piece and move it to the target location regardless of the 
+# consequences.
+###
 
 fen_move <- function(fen, move) {
+  # may need to run more test cases
+  # may want to add more error handling
+  
   if (is_void(fen) || is_void(move)) {
     stop("Missing inputs!")
   }
@@ -139,13 +160,14 @@ fen_move <- function(fen, move) {
     target <- unlist(str_split(move_parts[7], ""))
     target_file <- as.numeric(charToRaw(target[1])) - 96
     if (length(target_file) == 0) {
-      # this shouldn't happen. I guess this is temporary caution
+      # this shouldn't happen. I guess this is temporary precaution
       target_file <- NA
     }
-    target_rank <- (8:1)[as.numeric(target[2])] # We're reversing the order to match the way I've constructed position_2d
+    # We're reversing the order to match the way I've constructed position_2d
+    target_rank <- (8:1)[as.numeric(target[2])] 
     
     if (! is_void(move_parts[6])) {
-      # crazyhouse place. just change at target
+      # Crazyhouse place: Just change at target
       position_2d[[target_rank]][target_file] <- piece
       
     } else {
@@ -153,7 +175,8 @@ fen_move <- function(fen, move) {
       if (length(file) == 0) {
         file <- NA
       }
-      rank <- (8:1)[as.numeric(move_parts[4])] # reversed order here as well
+      # reversed order here as well
+      rank <- (8:1)[as.numeric(move_parts[4])] 
       
       if (capture || piece %in% c("p", "P")) {
         halfmove_clock <- 0
@@ -161,8 +184,13 @@ fen_move <- function(fen, move) {
         halfmove_clock <- halfmove_clock + 1
       }
       
-      # Find Source
+      
+      # Find Source 
+      # source = location piece moved from
+      # target = location piece moved to
+      
       # Simply pick first valid source because PGN disambiguates for us.
+      
       if (! is.na(file) && ! is.na(rank)) {
         # source already given
         source_file <- file
@@ -439,7 +467,7 @@ fen_move <- function(fen, move) {
             }
           } 
           if (source_file == 0) {
-            # assume other direction is correct
+            # assume other angle is correct
             source_file <- target_file - distance * direction
           }
         }
@@ -885,7 +913,6 @@ fen_move <- function(fen, move) {
       
       if (source_file == 0 || source_rank == 0) {
         stop("Could not find matching piece. Make sure the move is correct.")
-        return()
       }
       
       position_2d[[source_rank]][source_file] <- "1"
@@ -919,9 +946,9 @@ fen_move <- function(fen, move) {
   # Update check counts for Three Check variant
   if (!is.na(white_checks) && str_detect(move, "[+]$")) {
     if (turn == "w") {
-      white_checks = white_checks + 1
+      white_checks <- white_checks + 1
     } else {
-      black_checks = black_checks + 1
+      black_checks <- black_checks + 1
     }
   }
   

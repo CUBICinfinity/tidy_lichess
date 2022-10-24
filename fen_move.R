@@ -133,7 +133,7 @@ fen_move <- function(fen, move) {
     # OTHER MOVES
   } else {
     # [piece?, file?, rank?, capture?, ch_place?, target, promotion, check(mate)?]
-    move_parts <- str_match(move, "([RNBQKrnbqk]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
+    move_parts <- str_match(move, "([RNBQK]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
     
     position_2d <- position %>% 
       str_split("\\/") %>% 

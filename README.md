@@ -15,8 +15,7 @@ Antichess (Following the rules of lichess.org and chess.com)
 Chess960  
 Three-check  
 King of the Hill  
-Horde  
-Racing Kings  
+Horde
 
 Many other variants, including Atomic Chess, Duck Chess, ones with more or less 
 than two players, and ones with boards in any shape other than 8x8 are not 

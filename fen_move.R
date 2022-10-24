@@ -8,6 +8,10 @@ is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
+# How to fix absolute pin bug:
+#   when piece/pawn moves, if (variant prevents) check for king along same diagonal or file.
+#   if so, follow line from king, skipping source, until a piece/pawn is detected. 
+#   if unfriendly piece attacking, look for another valid source piece/pawn
 
 ###
 # TODO: Fix: THERE ARE STILL SOME BUGS IN THIS CODE
@@ -133,7 +137,7 @@ fen_move <- function(fen, move) {
     # OTHER MOVES
   } else {
     # [piece?, file?, rank?, capture?, ch_place?, target, promotion, check(mate)?]
-    move_parts <- str_match(move, "([RNBQKrnbqk]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
+    move_parts <- str_match(move, "([RNBQK]?)([a-h]?)([1-8]?)(x?)(@?)([a-h][1-8])(=[RNBQK])?([+#]?)?")
     
     position_2d <- position %>% 
       str_split("\\/") %>% 

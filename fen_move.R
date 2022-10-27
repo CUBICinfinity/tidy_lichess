@@ -8,10 +8,9 @@ is_void <- function(x) {
   return (is.na(x) || x == "" || length(x) == 0)
 }
 
-# How to fix absolute pin bug:
-#   when piece/pawn moves, and if variant prevents, look for king along same diagonal or file.
-#   if so, follow line from king, skipping source, until a piece/pawn is detected. 
-#   if unfriendly piece attacking, look for another valid source piece/pawn
+# Check if move violates an absolute pin
+# rank, file = current rank, current file
+# t_rank, t_file = target rank, target file
 detect_pin <- function(position_2d, rank, file, t_rank, t_file, turn, variant = "") {
   if (variant %in% c("Antichess")) {
     return(FALSE)

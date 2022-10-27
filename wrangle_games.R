@@ -1,8 +1,6 @@
 library(tidyverse)
 
 
-# Need to fix r2q1rk1/ppp2ppp/2n1pn2/3p4/3P1Bb1/P1PBPN2/2P1QPPP/R3K2R b KQ - 0 9
-# after bxc3 for https://lichess.org/njvAirSv#17
 
 ### Run this only once
 # username <- "cubicinfinity"
@@ -56,13 +54,13 @@ for (i in 1:number_of_turns) {
 
 # Convert PGN moves to FEN
 for (i in 1:nrow(games)) {
-  if (is.na(games[i,]$FEN)) {
+  if (is.na(games$FEN[i])) {
     position <- "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
   } else {
-    position <- games[i,]$FEN
+    position <- games$FEN[i]
   }
   
-  game_moves <- games[i,]$PGN %>% 
+  game_moves <- games$PGN[i] %>% 
     # Remove the result from the PGN
     str_remove(" ?((1\\/2)|0|1)-((1\\/2)|0|1)$") %>% 
     # Get just the moves themselves
@@ -74,7 +72,7 @@ for (i in 1:nrow(games)) {
     if (t > length(game_moves)) {
       break
     }
-    position <- fen_move(position, game_moves[t])
+    position <- fen_move(position, game_moves[t], games$Variant[i])
     games[i, length(games) - (number_of_turns - t)] <- position
   }
 }

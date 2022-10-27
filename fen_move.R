@@ -9,9 +9,226 @@ is_void <- function(x) {
 }
 
 # How to fix absolute pin bug:
-#   when piece/pawn moves, if (variant prevents) check for king along same diagonal or file.
+#   when piece/pawn moves, and if variant prevents, look for king along same diagonal or file.
 #   if so, follow line from king, skipping source, until a piece/pawn is detected. 
 #   if unfriendly piece attacking, look for another valid source piece/pawn
+detect_pin <- function(position_2d, rank, file, turn, variant = "") {
+  if (variant %in% c("Antichess")) {
+    return(FALSE)
+  }
+  king_found <- FALSE
+  pin_found <- FALSE
+  # look up for king
+  if (rank > 1) {
+    for (u in 1:(rank - 1)) {
+      if (position_2d[[u]][file] != "1") {
+        if (position_2d[[u]][file] == if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (rank < 8) {
+            # look down for attack
+            for (d in (rank + 1):8) {
+              if (position_2d[[d]][file] != "1") {
+                if (position_2d[[d]][file] %in% if_else(turn == "w",
+                                                        c("q", "r"),
+                                                        c("Q", "R"))) {
+                  pin_found <- TRUE
+                }
+              break
+              }
+            }
+          }
+        }
+      break
+      }
+    }
+  }
+  # look down for king
+  if (! king_found && rank < 8) {
+    for (d in (rank + 1):8) {
+      if (position_2d[[d]][file] != "1") {
+        if (position_2d[[d]][file] == if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (rank > 1) {
+            # look up for attack
+            for (u in 1:(rank - 1)) {
+              if (position_2d[[u]][file] != "1") {
+                if (position_2d[[u]][file] %in% if_else(turn == "w",
+                                                        c("q", "r"),
+                                                        c("Q", "R"))) {
+                  pin_found <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }   
+  }
+  # look left for king
+  if (! king_found && file > 1) {
+    for (l in 1:(file - 1)) {
+      if (position_2d[[rank]][l] != "1") {
+        if (position_2d[[rank]][l] == if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (file < 8) {
+            # look right for attack
+            for (r in (file + 1):8) {
+              if (position_2d[[rank]][r] != "1") {
+                if (position_2d[[rank]][r] %in% if_else(turn == "w",
+                                                        c("q", "r"),
+                                                        c("Q", "R"))) {
+                  pin_found <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }   
+  }
+  # look right for king
+  if (! king_found && file < 8) {
+    for (r in (file + 1):8) {
+      if (position_2d[[rank]][r] != "1") {
+        if (position_2d[[rank]][r] == if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (file > 1) {
+            # look left for attack
+            for (l in 1:(file - 1)) {
+              if (position_2d[[rank]][l] != "1") {
+                if (position_2d[[rank]][l] %in% if_else(turn == "w",
+                                                        c("q", "r"),
+                                                        c("Q", "R"))) {
+                  pin_found <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }   
+  }
+  # prep vars for diagonals
+  if (! king_found) {
+    ul_space <- min(c(file - 1, rank - 1))
+    dr_space <- min(c(8 - file, 8 - rank))
+    dl_space <- min(c(file - 1, 8 - rank))
+    ur_space <- min(c(8 - file, rank - 1))
+    
+    ul_squares <- cbind((file:(file - ul_space))[-1], 
+                        (rank:(rank - ul_space))[-1])
+    dr_squares <- cbind((file:(file + dr_space))[-1], 
+                        (rank:(rank + dr_space))[-1])
+    dl_squares <- cbind((file:(file - dl_space))[-1], 
+                        (rank:(rank + dl_space))[-1])
+    ur_squares <- cbind((file:(file + ur_space))[-1], 
+                        (rank:(rank - ur_space))[-1])
+  }
+  # look up-left for king
+  if (! king_found && ul_space > 0) {
+    for (ul in seq(ul_space)) {
+      if (position_2d[[(ul_squares[ul,2])]][(ul_squares[ul,1])] != "1") {
+        if (position_2d[[(ul_squares[ul,2])]][(ul_squares[ul,1])]
+            != if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (dr > 0) {
+            for (dr in seq(dr_space)) {
+              if (position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] != "1") {
+                if (position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] 
+                    %in% if_else(turn == "w", c("q", "b"), c("Q", "B"))) {
+                  found_pin <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+  }
+  # look down-right for king
+  if (! king_found && dr_space > 0) {
+    for (dr in seq(dr_space)) {
+      if (position_2d[[(dr_squares[dr,2])]][(dr_squares[dr,1])] != "1") {
+        if (position_2d[[(dr_squares[dr,2])]][(dr_squares[dr,1])]
+            != if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (ul > 0) {
+            for (ul in seq(ul_space)) {
+              if (position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] != "1") {
+                if (position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] 
+                    %in% if_else(turn == "w", c("q", "b"), c("Q", "B"))) {
+                  found_pin <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+  }
+  # look down-left for king
+  if (! king_found && dl_space > 0) {
+    for (dl in seq(dl_space)) {
+      if (position_2d[[(dl_squares[dl,2])]][(dl_squares[dl,1])] != "1") {
+        if (position_2d[[(dl_squares[dl,2])]][(dl_squares[dl,1])]
+            != if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (ur > 0) {
+            for (ur in seq(ur_space)) {
+              if (position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] != "1") {
+                if (position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] 
+                    %in% if_else(turn == "w", c("q", "b"), c("Q", "B"))) {
+                  found_pin <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+  }
+  # look up-right for king
+  if (! king_found && ur_space > 0) {
+    for (ur in seq(ur_space)) {
+      if (position_2d[[(ur_squares[ur,2])]][(ur_squares[ur,1])] != "1") {
+        if (position_2d[[(ur_squares[ur,2])]][(ur_squares[ur,1])]
+            != if_else(turn == "w", "K", "k")) {
+          king_found <- TRUE
+          if (dl > 0) {
+            for (dl in seq(dl_space)) {
+              if (position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] != "1") {
+                if (position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] 
+                    %in% if_else(turn == "w", c("q", "b"), c("Q", "B"))) {
+                  found_pin <- TRUE
+                }
+                break
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+  }
+ 
+  if (pin_found) {
+    return(TRUE)
+  } 
+  return(FALSE)
+}
+
 
 ###
 # TODO: Fix: THERE ARE STILL SOME BUGS IN THIS CODE
@@ -32,7 +249,7 @@ is_void <- function(x) {
 # consequences.
 ###
 
-fen_move <- function(fen, move) {
+fen_move <- function(fen, move, variant = "") {
   if (is_void(fen) || is_void(move)) {
     stop("Missing inputs!")
   }
@@ -234,7 +451,8 @@ fen_move <- function(fen, move) {
             # look up
             for (r in (target_rank:1)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
-                if (position_2d[[r]][target_file] == piece) {
+                if (position_2d[[r]][target_file] == piece
+                    && ! detect_pin(position_2d, r, target_file, turn, variant)) {
                   source_rank <- r
                   source_file <- target_file
                 }
@@ -245,7 +463,8 @@ fen_move <- function(fen, move) {
               # look down
               for (r in (target_rank:8)[-1]) {
                 if (position_2d[[r]][target_file] != "1") {
-                  if (position_2d[[r]][target_file] == piece) {
+                  if (position_2d[[r]][target_file] == piece
+                      && ! detect_pin(position_2d, r, target_file, turn, variant)) {
                     source_rank <- r
                     source_file <- target_file
                   }

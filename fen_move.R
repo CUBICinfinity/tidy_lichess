@@ -471,6 +471,11 @@ fen_move <- function(fen, move, variant = "") {
           pawn_direction <- if_else(piece == "P", -1, 1)
           source_rank <- target_rank - pawn_direction
           
+          # en passant? clean up lower square
+          if (capture && position_2d[[target_rank]][target_file] == "1") {
+            position_2d[[target_rank - pawn_direction]][target_file] <- "1"
+          }
+          
           if (position_2d[[source_rank]][source_file] != piece) {
             # double move
             source_rank <- target_rank - pawn_direction*2
@@ -1210,7 +1215,13 @@ fen_move <- function(fen, move, variant = "") {
       
       if (! is_void(move_parts[8])) {
         # This is a promotion. Update piece now.
-        piece <- substr(move_parts[8], 2, 2)
+        new_piece <- substr(move_parts[8], 2, 2)
+        piece <- if_else(turn == "w", new_piece,
+                         case_when(new_piece == "K" ~ "k",
+                                   new_piece == "Q" ~ "q",
+                                   new_piece == "N" ~ "n",
+                                   new_piece == "R" ~ "r",
+                                   new_piece == "B" ~ "b"))
       }
       
       if (source_file == 0 || source_rank == 0) {

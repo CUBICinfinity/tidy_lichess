@@ -12,7 +12,7 @@ is_void <- function(x) {
 #   when piece/pawn moves, and if variant prevents, look for king along same diagonal or file.
 #   if so, follow line from king, skipping source, until a piece/pawn is detected. 
 #   if unfriendly piece attacking, look for another valid source piece/pawn
-detect_pin <- function(position_2d, rank, file, turn, variant = "") {
+detect_pin <- function(position_2d, rank, file, t_rank, t_file, turn, variant = "") {
   if (variant %in% c("Antichess")) {
     return(FALSE)
   }
@@ -21,13 +21,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look up for king
   if (rank > 1) {
     for (u in 1:(rank - 1)) {
-      if (position_2d[[u]][file] != "1") {
+      if (position_2d[[u]][file] != "1" && ! (u == t_rank && file == t_file)) {
         if (position_2d[[u]][file] == if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (rank < 8) {
             # look down for attack
             for (d in (rank + 1):8) {
-              if (position_2d[[d]][file] != "1") {
+              if (position_2d[[d]][file] != "1" && ! (d == t_rank && file == t_file)) {
                 if (turn == "w" && position_2d[[d]][file] %in% c("q", "r")
                     || turn == "b" && position_2d[[d]][file] %in% c("Q", "R")) {
                   pin_found <- TRUE
@@ -44,13 +44,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look down for king
   if (! king_found && rank < 8) {
     for (d in (rank + 1):8) {
-      if (position_2d[[d]][file] != "1") {
+      if (position_2d[[d]][file] != "1" && ! (d == t_rank && file == t_file)) {
         if (position_2d[[d]][file] == if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (rank > 1) {
             # look up for attack
             for (u in 1:(rank - 1)) {
-              if (position_2d[[u]][file] != "1") {
+              if (position_2d[[u]][file] != "1" && ! (u == t_rank && file == t_file)) {
                 if (turn == "w" && position_2d[[u]][file] %in% c("q", "r")
                     || turn == "b" && position_2d[[u]][file] %in% c("Q", "R")) {
                   pin_found <- TRUE
@@ -67,13 +67,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look left for king
   if (! king_found && file > 1) {
     for (l in 1:(file - 1)) {
-      if (position_2d[[rank]][l] != "1") {
+      if (position_2d[[rank]][l] != "1" && ! (rank == t_rank && l == t_file)) {
         if (position_2d[[rank]][l] == if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (file < 8) {
             # look right for attack
             for (r in (file + 1):8) {
-              if (position_2d[[rank]][r] != "1") {
+              if (position_2d[[rank]][r] != "1" && ! (rank == t_rank && r == t_file)) {
                 if (turn == "w" && position_2d[[rank]][r] %in% c("q", "r")
                     || turn == "b" && position_2d[[rank]][r] %in% c("Q", "R")) {
                   pin_found <- TRUE
@@ -90,13 +90,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look right for king
   if (! king_found && file < 8) {
     for (r in (file + 1):8) {
-      if (position_2d[[rank]][r] != "1") {
+      if (position_2d[[rank]][r] != "1" && ! (rank == t_rank && r == t_file)) {
         if (position_2d[[rank]][r] == if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (file > 1) {
             # look left for attack
             for (l in 1:(file - 1)) {
-              if (position_2d[[rank]][l] != "1") {
+              if (position_2d[[rank]][l] != "1" && ! (rank == t_rank && l == t_file)) {
                 if (turn == "w" && position_2d[[rank]][l] %in% c("q", "r")
                     || turn == "b" && position_2d[[rank]][l] %in% c("Q", "R")) {
                   pin_found <- TRUE
@@ -129,13 +129,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look up-left for king
   if (! king_found && ul_space > 0) {
     for (ul in seq(ul_space)) {
-      if (position_2d[[(ul_squares[ul,2])]][(ul_squares[ul,1])] != "1") {
+      if (position_2d[[(ul_squares[ul,2])]][(ul_squares[ul,1])] != "1" && ! (ul_squares[ul,2] == t_rank && ul_squares[ul,1] == t_file)) {
         if (position_2d[[(ul_squares[ul,2])]][(ul_squares[ul,1])]
             != if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (dr_space > 0) {
             for (dr in seq(dr_space)) {
-              if (position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] != "1") {
+              if (position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] != "1" && ! (dr_squares[dr,2] == t_rank && dr_squares[dr,1] == t_file)) {
                 if (turn == "w" && position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] %in% c("q", "b")
                     || turn == "b" && position_2d[[dr_squares[dr,2]]][dr_squares[dr,1]] %in% c("Q", "B")) {
                   found_pin <- TRUE
@@ -152,13 +152,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look down-right for king
   if (! king_found && dr_space > 0) {
     for (dr in seq(dr_space)) {
-      if (position_2d[[(dr_squares[dr,2])]][(dr_squares[dr,1])] != "1") {
+      if (position_2d[[(dr_squares[dr,2])]][(dr_squares[dr,1])] != "1" && ! (dr_squares[dr,2] == t_rank && dr_squares[dr,1] == t_file)) {
         if (position_2d[[(dr_squares[dr,2])]][(dr_squares[dr,1])]
             != if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (ul_space > 0) {
             for (ul in seq(ul_space)) {
-              if (position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] != "1") {
+              if (position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] != "1" && ! (ul_squares[ul,2] == t_rank && ul_squares[ul,1] == t_file)) {
                 if (turn == "w" && position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] %in% c("q", "b")
                     || turn == "b" && position_2d[[ul_squares[ul,2]]][ul_squares[ul,1]] %in% c("Q", "B")) {
                   found_pin <- TRUE
@@ -175,13 +175,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look down-left for king
   if (! king_found && dl_space > 0) {
     for (dl in seq(dl_space)) {
-      if (position_2d[[(dl_squares[dl,2])]][(dl_squares[dl,1])] != "1") {
+      if (position_2d[[(dl_squares[dl,2])]][(dl_squares[dl,1])] != "1" && ! (dl_squares[dl,2] == t_rank && dl_squares[dl,1] == t_file)) {
         if (position_2d[[(dl_squares[dl,2])]][(dl_squares[dl,1])]
             != if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (ur_space > 0) {
             for (ur in seq(ur_space)) {
-              if (position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] != "1") {
+              if (position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] != "1" && ! (ur_squares[ur,2] == t_rank && ur_squares[ur,1] == t_file)) {
                 if (turn == "w" && position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] %in% c("q", "b")
                     || turn == "b" && position_2d[[ur_squares[ur,2]]][ur_squares[ur,1]] %in% c("Q", "B")) {
                   found_pin <- TRUE
@@ -198,13 +198,13 @@ detect_pin <- function(position_2d, rank, file, turn, variant = "") {
   # look up-right for king
   if (! king_found && ur_space > 0) {
     for (ur in seq(ur_space)) {
-      if (position_2d[[(ur_squares[ur,2])]][(ur_squares[ur,1])] != "1") {
+      if (position_2d[[(ur_squares[ur,2])]][(ur_squares[ur,1])] != "1" && ! (ur_squares[ur,2] == t_rank && ur_squares[ur,1] == t_file)) {
         if (position_2d[[(ur_squares[ur,2])]][(ur_squares[ur,1])]
             != if_else(turn == "w", "K", "k")) {
           king_found <- TRUE
           if (dl_space > 0) {
             for (dl in seq(dl_space)) {
-              if (position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] != "1") {
+              if (position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] != "1" && ! (dl_squares[dl,2] == t_rank && dl_squares[dl,1] == t_file)) {
                 if (turn == "w" && position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] %in% c("q", "b")
                     || turn == "b" && position_2d[[dl_squares[dl,2]]][dl_squares[dl,1]] %in% c("Q", "B")) {
                   found_pin <- TRUE
@@ -448,7 +448,7 @@ fen_move <- function(fen, move, variant = "") {
             for (r in (target_rank:1)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                   source_file <- target_file
                 }
@@ -460,7 +460,7 @@ fen_move <- function(fen, move, variant = "") {
               for (r in (target_rank:8)[-1]) {
                 if (position_2d[[r]][target_file] != "1") {
                   if (position_2d[[r]][target_file] == piece
-                      && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                      && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                     source_rank <- r
                     source_file <- target_file
                   }
@@ -488,7 +488,7 @@ fen_move <- function(fen, move, variant = "") {
             }
             if (valid == TRUE &&
                 position_2d[[target_rank + distance * direction]][source_file] == piece
-                && ! detect_pin(position_2d, target_rank + distance * direction, source_file, turn, variant)) {
+                && ! detect_pin(position_2d, target_rank + distance * direction, source_file, target_rank, target_file, turn, variant)) {
               source_rank <- target_rank + distance * direction
             }
           } 
@@ -507,7 +507,7 @@ fen_move <- function(fen, move, variant = "") {
             for (r in (target_rank:1)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, source_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, source_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                 }
                 break
@@ -517,7 +517,7 @@ fen_move <- function(fen, move, variant = "") {
               # look down
               for (r in (target_rank:8)[-1]) {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, source_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, source_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                   break
                 }
@@ -529,7 +529,7 @@ fen_move <- function(fen, move, variant = "") {
             direction <- if_else(source_file < target_file, -1, 1)
             # horizontal
             if (position_2d[[target_rank]][source_file] == piece
-                && ! detect_pin(position_2d, target_rank, source_file, turn, variant)) {
+                && ! detect_pin(position_2d, target_rank, source_file, target_rank, target_file, turn, variant)) {
               if (distance > 1) {
                 valid = TRUE
                 for (f in source_file + seq(distance - 1) * direction * -1) {
@@ -547,7 +547,7 @@ fen_move <- function(fen, move, variant = "") {
             }
             if (source_rank == 0 && target_rank - distance > 0) {
               if (position_2d[[target_rank + distance * direction]][source_file] == piece
-                  && ! detect_pin(position_2d, target_rank + distance * direction, source_file, turn, variant)) {
+                  && ! detect_pin(position_2d, target_rank + distance * direction, source_file, target_rank, target_file, turn, variant)) {
                 if (distance > 1) {
                   valid = TRUE
                   for (d in seq(distance - 1)) {
@@ -575,7 +575,7 @@ fen_move <- function(fen, move, variant = "") {
           if (abs(source_file - target_file) == 1) {
             if (target_rank - 2 > 0 && 
                 position_2d[[target_rank - 2]][source_file] == piece
-                && ! detect_pin(position_2d, target_rank - 2, source_file, turn, variant)) {
+                && ! detect_pin(position_2d, target_rank - 2, source_file, target_rank, target_file, turn, variant)) {
               source_rank <- target_rank - 2
             } else {
               source_rank <- target_rank + 2
@@ -583,7 +583,7 @@ fen_move <- function(fen, move, variant = "") {
           } else {
             if (target_rank - 1 > 0 && 
                 position_2d[[target_rank - 1]][source_file] == piece
-                && ! detect_pin(position_2d, target_rank - 1, source_file, turn, variant)) {
+                && ! detect_pin(position_2d, target_rank - 1, source_file, target_rank, target_file, turn, variant)) {
               source_rank <- target_rank - 1
             } else {
               source_rank <- target_rank + 1
@@ -629,7 +629,7 @@ fen_move <- function(fen, move, variant = "") {
             if (target_file == 1) {
               source_file <- 2
             } else if (position_2d[[source_rank]][target_file - 1] == piece
-                       && ! detect_pin(position_2d, source_rank, target_file - 1, turn, variant)) {
+                       && ! detect_pin(position_2d, source_rank, target_file - 1, target_rank, target_file, turn, variant)) {
               source_file <- target_file - 1
             } else {
               source_file <- target_file + 1
@@ -653,7 +653,7 @@ fen_move <- function(fen, move, variant = "") {
             for (f in (target_file:1)[-1]) {
               if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece
-                    && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                    && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                   source_rank <- target_rank
                   source_file <- f
                 }
@@ -665,7 +665,7 @@ fen_move <- function(fen, move, variant = "") {
               for (f in (target_file:8)[-1]) {
                 if (position_2d[[target_rank]][f] != "1") {
                   if (position_2d[[target_rank]][f] == piece
-                      && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                      && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                     source_rank <- target_rank
                     source_file <- f
                   }
@@ -692,7 +692,7 @@ fen_move <- function(fen, move, variant = "") {
             }
             if (valid == TRUE &&
                 position_2d[[source_rank]][target_file + distance * direction] == piece
-                && ! detect_pin(position_2d, source_rank, target_file + distance * direction, turn, variant)) {
+                && ! detect_pin(position_2d, source_rank, target_file + distance * direction, target_rank, target_file, turn, variant)) {
               source_file <- target_file + distance * direction
             }
           } 
@@ -711,7 +711,7 @@ fen_move <- function(fen, move, variant = "") {
             for (f in (target_file:1)[-1]) {
               if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece
-                    && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                    && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                   source_rank <- f
                 }
                 break
@@ -722,7 +722,7 @@ fen_move <- function(fen, move, variant = "") {
               for (f in (target_file:8)[-1]) {
                 if (position_2d[[target_rank]][f] != "1") {
                   if (position_2d[[target_rank]][f] == piece
-                      && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                      && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                     source_rank <- f
                   }
                   break
@@ -735,7 +735,7 @@ fen_move <- function(fen, move, variant = "") {
             direction <- if_else(source_rank < target_rank, -1, 1)
             # vertical
             if (position_2d[[source_rank]][target_file] == piece
-                && ! detect_pin(position_2d, source_rank, target_file, turn, variant)) {
+                && ! detect_pin(position_2d, source_rank, target_file, target_rank, target_file, turn, variant)) {
               if (distance > 1) {
                 valid = TRUE
                 for (r in source_rank + seq(distance - 1) * direction * -1) {
@@ -754,7 +754,7 @@ fen_move <- function(fen, move, variant = "") {
             # diagonal
             if (source_file == 0 && target_file - distance > 0) {
               if (position_2d[[source_rank]][target_file + distance * direction] == piece
-                  && ! detect_pin(position_2d, source_rank, target_file + distance * direction, turn, variant)) {
+                  && ! detect_pin(position_2d, source_rank, target_file + distance * direction, target_rank, target_file, turn, variant)) {
                 if (distance > 1) {
                   valid = TRUE
                   for (d in seq(distance - 1)) {
@@ -783,7 +783,7 @@ fen_move <- function(fen, move, variant = "") {
           if (abs(source_rank - target_rank) == 1) {
             if (target_file - 2 > 0 && 
                 position_2d[[source_rank]][target_file - 2] == piece
-                && ! detect_pin(position_2d, source_rank, target_file - 2, turn, variant)) {
+                && ! detect_pin(position_2d, source_rank, target_file - 2, target_rank, target_file, turn, variant)) {
               source_file <- target_file - 2
             } else {
               source_file <- target_file + 2
@@ -791,7 +791,7 @@ fen_move <- function(fen, move, variant = "") {
           } else {
             if (target_file - 1 > 0 && 
                 position_2d[[source_rank]][target_file - 1] == piece
-                && ! detect_pin(position_2d, source_rank, target_file - 1, turn, variant)) {
+                && ! detect_pin(position_2d, source_rank, target_file - 1, target_rank, target_file, turn, variant)) {
               source_file <- target_file - 1
             } else {
               source_file <- target_file + 1
@@ -825,7 +825,7 @@ fen_move <- function(fen, move, variant = "") {
             if (target_file == 1) {
               source_file <- 2
             } else if (position_2d[[source_rank]][target_file - 1] == piece
-                       && ! detect_pin(position_2d, source_rank, target_file - 1, turn, variant)) {
+                       && ! detect_pin(position_2d, source_rank, target_file - 1, target_rank, target_file, turn, variant)) {
               source_file <- target_file - 1
             } else {
               source_file <- target_file + 1
@@ -859,7 +859,7 @@ fen_move <- function(fen, move, variant = "") {
           for (f in (target_file:1)[-1]) {
             if (position_2d[[target_rank]][f] != "1") {
               if (position_2d[[target_rank]][f] == piece
-                  && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                  && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                 source_rank <- target_rank
                 source_file <- f
               }
@@ -871,7 +871,7 @@ fen_move <- function(fen, move, variant = "") {
             for (f in (target_file:8)[-1]) {
               if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece
-                    && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                    && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                   source_rank <- target_rank
                   source_file <- f
                 }
@@ -884,7 +884,7 @@ fen_move <- function(fen, move, variant = "") {
             for (r in (target_rank:1)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                   source_file <- target_file
                 }
@@ -897,7 +897,7 @@ fen_move <- function(fen, move, variant = "") {
             for (r in (target_rank:8)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                   source_file <- target_file
                 }
@@ -920,7 +920,7 @@ fen_move <- function(fen, move, variant = "") {
             for (s in seq(ul_space)) {
               if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece
-                    && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                    && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                   source_rank <- spaces[s,2]
                   source_file <- spaces[s,1]
                 }
@@ -936,7 +936,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(dr_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -953,7 +953,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(dl_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -970,7 +970,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(ur_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -996,7 +996,7 @@ fen_move <- function(fen, move, variant = "") {
             for (s in seq(ul_space)) {
               if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] == piece
-                    && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                    && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                   source_rank <- spaces[s,2]
                   source_file <- spaces[s,1]
                 }
@@ -1012,7 +1012,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(dr_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -1029,7 +1029,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(dl_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -1046,7 +1046,7 @@ fen_move <- function(fen, move, variant = "") {
               for (s in seq(ur_space)) {
                 if (position_2d[[(spaces[s,2])]][(spaces[s,1])] != "1") {
                   if (position_2d[[spaces[s,2]]][spaces[s,1]] == piece
-                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], turn, variant)) {
+                      && ! detect_pin(position_2d, spaces[s,2], spaces[s,1], target_rank, target_file, turn, variant)) {
                     source_rank <- spaces[s,2]
                     source_file <- spaces[s,1]
                   }
@@ -1061,7 +1061,7 @@ fen_move <- function(fen, move, variant = "") {
             for (f in (target_file:1)[-1]) {
               if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece
-                    && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                    && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                   source_rank <- target_rank
                   source_file <- f
                 }
@@ -1074,7 +1074,7 @@ fen_move <- function(fen, move, variant = "") {
             for (f in (target_file:8)[-1]) {
               if (position_2d[[target_rank]][f] != "1") {
                 if (position_2d[[target_rank]][f] == piece
-                    && ! detect_pin(position_2d, target_rank, f, turn, variant)) {
+                    && ! detect_pin(position_2d, target_rank, f, target_rank, target_file, turn, variant)) {
                   source_rank <- target_rank
                   source_file <- f
                 }
@@ -1087,7 +1087,7 @@ fen_move <- function(fen, move, variant = "") {
             for (r in (target_rank:1)[-1]) {
               if (position_2d[[r]][target_file] != "1") {
                 if (position_2d[[r]][target_file] == piece
-                    && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                    && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                   source_rank <- r
                   source_file <- target_file
                 }
@@ -1099,7 +1099,7 @@ fen_move <- function(fen, move, variant = "") {
             # look down
             for (r in (target_rank:8)[-1]) {
               if (position_2d[[r]][target_file] == piece
-                  && ! detect_pin(position_2d, r, target_file, turn, variant)) {
+                  && ! detect_pin(position_2d, r, target_file, target_rank, target_file, turn, variant)) {
                 source_rank <- r
                 source_file <- target_file
                 break
@@ -1120,7 +1120,7 @@ fen_move <- function(fen, move, variant = "") {
                 next
               }
               if (position_2d[[r]][f] == piece
-                  && ! detect_pin(position_2d, r, f, turn, variant)) {
+                  && ! detect_pin(position_2d, r, f, target_rank, target_file, turn, variant)) {
                 source_file <- f
                 source_rank <- r
                 break

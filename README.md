@@ -22,3 +22,8 @@ than two players, and ones with boards in any shape other than 8x8 are not
 supported. There is a possibility that I will add support for some other 
 variants in the future, but it is not something you should wait for. Instead,
 you should start your own branch to add anything you like.
+
+---
+
+AnalysisDemo.R is an example script for building an opening performance plot:
+![Opening Analysis Plot](ECO_plot.png)

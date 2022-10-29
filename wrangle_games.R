@@ -12,7 +12,7 @@ library(tidyverse)
 source("fen_move.R")
 
 # Select number of moves to add to tibble. These are half-moves, not full-moves.
-number_of_turns <- 50
+number_of_turns <- 8
 
 pgn <- read_lines("data/lichess_cubicinfinity_2022-10-19.pgn")
 
@@ -76,3 +76,4 @@ for (i in 1:nrow(games)) {
     games[i, length(games) - (number_of_turns - t)] <- position
   }
 }
+

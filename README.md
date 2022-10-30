@@ -3,6 +3,11 @@
 
 ---
 
+lichess.org already offers a nice collection of analysis tools players can use to understand their performance, but with preset limitations.
+This repository provides the basic tools to perform your own research on chess games data with the limitless potential of R.
+
+---
+
 The most advanced feature of this repo is the `fen_move` function, which gets the 
 next FEN position in chess, given the current FEN position and the algebraic 
 move.  

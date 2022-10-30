@@ -1,8 +1,9 @@
 # tidy_lichess - 1.0.1
 Analyze your lichess games
+
 ---
 
-The most useful feature of this repo is the `fen_move` function, which gets the 
+The most advanced feature of this repo is the `fen_move` function, which gets the 
 next FEN position in chess, given the current FEN position and the algebraic 
 move.  
 https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation  

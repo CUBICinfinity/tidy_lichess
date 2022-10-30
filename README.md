@@ -1,5 +1,5 @@
 # tidy_lichess - 1.0.1
-Analyze your lichess games
+### Analyze your lichess games
 
 ---
 

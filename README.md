@@ -10,7 +10,7 @@ This repository provides the basic tools to perform your own research on chess g
 
 The most advanced feature of this repo is the `fen_move` function, which gets the 
 next FEN position in chess, given the current FEN position and the algebraic 
-move.  
+move. Thus, allowing you to recreate every position in the game and save them in tibbles.  
 https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation  
 https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
 

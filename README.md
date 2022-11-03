@@ -8,6 +8,10 @@ This repository provides the basic tools to perform your own research on chess g
 
 ---
 
+`evaluation.R` includes a customizable `material_score()` for FEN positions.
+
+---
+
 The most advanced feature of this repo is the `fen_move` function, which gets the 
 next FEN position in chess, given the current FEN position and the algebraic 
 move. Thus, allowing you to recreate every position in the game and save them in tibbles.  

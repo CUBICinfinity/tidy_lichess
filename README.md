@@ -3,7 +3,7 @@
 
 ---
 
-Lichess.org already offers a nice collection of analysis tools players can use to understand their performance, but with preset limitations.  
+Lichess.org already offers a nice collection of analysis tools players can use to understand their performance.  
 This repository provides the basic tools to perform your own research on chess games data with the limitless potential of R.
 
 ---

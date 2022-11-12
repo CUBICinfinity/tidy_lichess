@@ -37,4 +37,4 @@ you should start your own branch to add anything you like.
 
 AnalysisDemo.R is an example script for building an opening performance plot:
 ![Opening Analysis Plot](ECO_plot.png)
-It looks like I should start by better understanding various queen pawn openings.
+I should work on my queen pawn openings.

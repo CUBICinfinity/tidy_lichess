@@ -46,4 +46,4 @@ I should work on my queen pawn openings.
 
 The license is GPL v3 +.
 
-You are welcome to contribute to this project. Communicating with me with improve efficiency.
+You are welcome to contribute to this project. Communicating with me will improve efficiency.

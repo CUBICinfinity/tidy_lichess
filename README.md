@@ -1,4 +1,4 @@
-# tidy_lichess - 1.0.1
+# tidy_lichess - 1.0.2
 ### Analyze your lichess games
 
 ---
@@ -9,6 +9,9 @@ This repository provides the basic tools to perform your own research on chess g
 ---
 
 `evaluation.R` includes a customizable `material_score()` for FEN positions.
+
+With Version 1.0.2, I have added example content for processing positions with Stockfish and saving the evaluations for all positions of games in long format.
+See `evaluate_games.R` and its dependencies. This engine analysis content works properly, but I intend to improve it further.
 
 ---
 
@@ -42,3 +45,5 @@ I should work on my queen pawn openings.
 ---
 
 The license is GPL v3 +.
+
+You are welcome to contribute to this project. Communicating with me with improve efficiency.

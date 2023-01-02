@@ -1,0 +1,12 @@
+Site, Variant, Side, MoveId, Move, FEN, Eval, EvalNorm, EvalDiff
+
+Site: Unique ID for the game (URL)
+Variant: Game variation
+Side: Self playing as black or white
+MoveId: The number of halfmoves made until this position. Starts at 0 if opening position is included.
+Move: The last move that was played (algebraic notation)
+FEN: The current position
+Eval: Strength of the position for white, according to engine, text format
+EvalNum: Calculated from Eval as a single number. Mate in X = max(10000 - log(X) * 1000, 400) CentiPawns, Mate delivered = +/- Inf
+EvalNorm: Sigmoid normalization [-1, 1] of EvalNum
+EvalDiff: Change in EvalNorm from previous position

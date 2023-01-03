@@ -23,18 +23,13 @@ https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
 
 `fen_move` supports a number of variants, namely,  
 Standard (Including From Position)  
-Crazyhouse  
-Antichess (Following the rules of lichess.org and chess.com)  
+Crazyhouse    
 Chess960  
 Three-check  
 King of the Hill  
 Horde
 
-Many other variants, including Atomic Chess, Duck Chess, ones with more or less 
-than two players, and ones with boards in any shape other than 8x8 are not 
-supported. There is a possibility that I will add support for some other 
-variants in the future, but it is not something you should wait for. Instead,
-you should start your own branch to add anything you like.
+I plan to add support for some other variants in the future. Atomic, Duck, and Anti-Chess are the most likely to be added.
 
 ---
 

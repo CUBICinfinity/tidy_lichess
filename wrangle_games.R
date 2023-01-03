@@ -45,6 +45,10 @@ for (line in pgn) {
 }
 games$PGN <- moves
 
+
+# This remaining part is optional.
+# Read out first moves of game. (`number_of_turns`)
+
 # The data may be pivoted longer later if desired.
 for (i in 1:number_of_turns) {
   eval(parse(text = paste0("games$turn_", i, " <- ''")))

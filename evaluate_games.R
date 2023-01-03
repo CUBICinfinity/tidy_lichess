@@ -153,7 +153,7 @@ engine_file <- "engines/stockfish_15.1_win64/stockfish-windows-2022-x86-64-avx2.
 options(mc.cores = detectCores()-4)
 positions <- mclapply(split(games, games$Site), 
                       function(x) { 
-                        analyze_game(x, engine_file, depth = 35, cores = detectCores()) 
+                        analyze_game(x, engine_file, depth = 35, cores = detectCores())
                         }) %>% 
   bind_rows()
 

@@ -10,7 +10,7 @@ This repository provides the basic tools to perform your own research on chess g
 
 `count_material.R` includes a customizable `material_score()` for FEN positions.
 
-With Version 1.0.2, I have added example content for processing positions with Stockfish and saving the evaluations for all positions of games in long format.
+Version 1.0.2 adds example content for processing positions with Stockfish and saving the evaluations for all positions of games in long format.
 See `evaluate_games.R` and its dependencies. This engine analysis content works properly, but I intend to improve it further.
 
 ---

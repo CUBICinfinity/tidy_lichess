@@ -1,3 +1,12 @@
+# fen_move supports the following variants:
+# Standard (Including From Position)
+# Crazyhouse
+# Chess960
+# Three-check
+# King of the Hill
+# Horde
+
+
 if (! require(tidyverse)) {
   stop("`library(tidyverse)` is required!")
 }

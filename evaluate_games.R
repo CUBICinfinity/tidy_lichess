@@ -79,8 +79,8 @@ games <- games %>%
          Start = if_else(is.na(FEN), "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", FEN)) %>% 
   select(Site, Variant, Start, Side, PGN) %>% 
   # Limiting to normal chess. Fairy Stockfish may be used for other variants.
-  # See why Chess960 can be included: https://chess.stackexchange.com/q/41246/30060
-  filter(Variant %in% c("Standard", "From Position", "Chess960"))
+  # Why Chess960 is not included: https://chess.stackexchange.com/q/41246/30060
+  filter(Variant %in% c("Standard", "From Position"))
 
 
 # Individual process for a game

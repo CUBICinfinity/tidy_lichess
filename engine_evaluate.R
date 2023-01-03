@@ -11,7 +11,7 @@ if (! require(tidyverse)) {
 # honestly, 35 moves is already quite advanced compared to humans for most 
 # positions.
 #
-# Verbose is just for testing.
+# Use verbose for testing.
 evaluate <- function(engine, fen, side = "w", depth = 35, verbose = FALSE) {
   engine$position(fen)
   

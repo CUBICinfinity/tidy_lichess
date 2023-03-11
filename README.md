@@ -26,8 +26,7 @@ Standard (Including From Position)
 Crazyhouse    
 Chess960  
 Three-check  
-King of the Hill  
-Horde
+King of the Hill
 
 I plan to add support for some other variants in the future. Atomic, Duck, and Anti-Chess are the most likely to be added.
 

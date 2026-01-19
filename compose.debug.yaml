@@ -1,0 +1,6 @@
+services:
+  chessanalysis:
+    image: chessanalysis
+    build:
+      context: .
+      dockerfile: ./Dockerfile

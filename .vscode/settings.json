@@ -1,0 +1,10 @@
+{
+  "r.rterm.linux": "/usr/local/bin/R",
+  "r.rpath.linux": "/usr/local/bin/R",
+  "terminal.integrated.profiles.linux": {
+    "R": {
+      "path": "/usr/local/bin/R",
+      "args": ["--no-save", "--no-restore"]
+    }
+  }
+}

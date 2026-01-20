@@ -10,7 +10,7 @@ This repository provides the basic tools to perform your own research on chess g
 
 UPDATE: The stockfish package was removed from CRAN in 2023. 
 It is still available at `install.packages('https://cran.r-project.org/src/contrib/Archive/stockfish/stockfish_1.0.0.tar.gz')` or `remotes::install_github("curso-r/stockfish")`.
-This bundles Stockfish 14.1. For the latest version, pass a [downloaded stockfish](https://stockfishchess.org/download/) executable to `fish$new()`.
+For the latest version of the Stockfish engine, pass a [downloaded stockfish](https://stockfishchess.org/download/) executable to `fish$new()`.
 
 ---
 

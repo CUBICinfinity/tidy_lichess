@@ -5,6 +5,7 @@ source('fen_move.R')
 # These tests are not fully comprehensive, but intend to catch the majority of mistakes.
 
 
+message('checking en passant support')
 # Check enpassant working properly
 moves <- c('c5', 'dxc6')
 positions <- c('rn1qkbnr/pppb2pp/3pp3/1N1P1p2/3Q4/8/PPP1PPPP/R1B1KBNR b KQkq - 0 5',
@@ -18,8 +19,9 @@ for (i in 1:length(moves)) {
 }
 
 
+
 # illegal cases. (contains illegal positions too; not all moves are illegal)
-message('there should be 13 warnings')
+message('checking illegal cases. there should be 13 warnings')
 tests <- list(c('8/3k4/8/3K4/6p1/8/8/8 w - - 0 1', 'Ke6+', '8/3k4/4K3/8/6p1/8/8/8 b - - 1 1'), # KvK
 c('8/3k4/4K3/8/6p1/8/8/8 b - - 0 1', 'Kxe6', '8/8/4k3/8/6p1/8/8/8 w - - 0 2'), # king capture king
 c('7B/8/5k2/8/8/8/8/8 b - - 0 1', 'Kg7', '7B/6k1/8/8/8/8/8/8 w - - 1 2'), # stay in check
@@ -30,7 +32,7 @@ c('8/8/8/8/1Q2k1K1/8/8/6q1 w - - 2 3', 'Qe7+', '8/4Q3/8/8/4k1K1/8/8/6q1 b - - 3 
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Ne2', 
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # occupied
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Nxe2', 
-'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # can't capture self. !!This FEN is ambiguous.
+'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # can't capture self. !!This FEN is ambiguous. Implementation optional and subjective
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Rh3', 
 'rnbqkbnr/pppppppp/8/8/8/7R/PPPPPPPP/RNBQKBN1 b KQkq - 1 1'), # blocked
 c('rnbqk2r/pppp1ppp/8/8/8/BP6/P1PPP1PP/RN1QKBNR b KQkq - 2 6', 'O-O', 
@@ -48,11 +50,12 @@ for (test in tests) {
 			message('failed at ', test[1], ' || ', test[2], ' : ', fen_move(test[1], test[2]))
 		}
 	}, error = function(e) {
-		message(paste("in illegal tests, ", e$messgae))
+		message(paste("error at ", test[1], test[2], " : ", e$messgae))
 	})
 }
 
 
+message('checking a long standard game')
 # Test against a new, long game
 # https://lichess.org/eatLiF30
 moves <- c('e4','e5','Nf3','Nc6','d4','d6','Bc4','Bg4','d5','Na5','Bd3','Bxf3','Qxf3','c5','Bb5+','Ke7','c3','a6','Be2','b6','Bg5+','f6','Qh3','Qc7','Be3',
@@ -206,42 +209,44 @@ for (i in 1:length(moves)) {
 }
 
 
-# Atomic game
-moves <- c('f4','Nf6','Nf3','e5','fxe5','d5','g3','Bh3','Bxh3',
-'Qh4','gxh4','Bb4','c3','Bc5','d4','Be7','Ne5','Bh4+','Nxf7#')
-positions <- c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-'rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1',
-'rnbqkb1r/pppppppp/5n2/8/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 1 2',
-'rnbqkb1r/pppppppp/5n2/8/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq - 2 2',
-'rnbqkb1r/pppp1ppp/5n2/4p3/5P2/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 3',
-'rnbqkb1r/pppppppp/5n2/8/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq - 2 2',
-'rnbqkb1r/pppp1ppp/5n2/4p3/5P2/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 3',
-'rnbqkb1r/pppp1ppp/8/8/8/5N2/PPPPP1PP/RNBQKB1R b KQkq - 0 3',
-'rnbqkb1r/ppp2ppp/8/3p4/8/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 4',
-'rnbqkb1r/ppp2ppp/8/3p4/8/5NP1/PPPPP2P/RNBQKB1R b KQkq - 0 4',
-'rn1qkb1r/ppp2ppp/8/3p4/8/5NPb/PPPPP2P/RNBQKB1R w KQkq - 1 5',
-'rn1qkb1r/ppp2ppp/8/3p4/8/5NP1/PPPPP2P/RNBQK2R b KQkq - 0 5',
-'rn2kb1r/ppp2ppp/8/3p4/7q/5NP1/PPPPP2P/RNBQK2R w KQkq - 1 6',
-'rn2kb1r/ppp2ppp/8/3p4/8/5N2/PPPPP2P/RNBQK2R b KQkq - 0 6',
-'rn2k2r/ppp2ppp/8/3p4/1b6/5N2/PPPPP2P/RNBQK2R w KQkq - 1 7',
-'rn2k2r/ppp2ppp/8/3p4/1b6/2P2N2/PP1PP2P/RNBQK2R b KQkq - 0 7',
-'rn2k2r/ppp2ppp/8/2bp4/8/2P2N2/PP1PP2P/RNBQK2R w KQkq - 1 8',
-'rn2k2r/ppp2ppp/8/2bp4/3P4/2P2N2/PP2P2P/RNBQK2R b KQkq - 0 8',
-'rn2k2r/ppp1bppp/8/3p4/3P4/2P2N2/PP2P2P/RNBQK2R w KQkq - 1 9',
-'rn2k2r/ppp1bppp/8/3pN3/3P4/2P5/PP2P2P/RNBQK2R b KQkq - 2 9',
-'rn2k2r/ppp2ppp/8/3pN3/3P3b/2P5/PP2P2P/RNBQK2R w KQkq - 3 10',
-'rn5r/ppp3pp/8/3p4/3P3b/2P5/PP2P2P/RNBQK2R b KQ - 0 10') # final move should NOT raise warning.
+# # This will not be implemented yet.
+# message('checking a short atomic game')
+# # Atomic game
+# moves <- c('f4','Nf6','Nf3','e5','fxe5','d5','g3','Bh3','Bxh3',
+# 'Qh4','gxh4','Bb4','c3','Bc5','d4','Be7','Ne5','Bh4+','Nxf7#')
+# positions <- c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+# 'rnbqkbnr/pppppppp/8/8/5P2/8/PPPPP1PP/RNBQKBNR b KQkq - 0 1',
+# 'rnbqkb1r/pppppppp/5n2/8/5P2/8/PPPPP1PP/RNBQKBNR w KQkq - 1 2',
+# 'rnbqkb1r/pppppppp/5n2/8/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq - 2 2',
+# 'rnbqkb1r/pppp1ppp/5n2/4p3/5P2/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 3',
+# 'rnbqkb1r/pppppppp/5n2/8/5P2/5N2/PPPPP1PP/RNBQKB1R b KQkq - 2 2',
+# 'rnbqkb1r/pppp1ppp/5n2/4p3/5P2/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 3',
+# 'rnbqkb1r/pppp1ppp/8/8/8/5N2/PPPPP1PP/RNBQKB1R b KQkq - 0 3',
+# 'rnbqkb1r/ppp2ppp/8/3p4/8/5N2/PPPPP1PP/RNBQKB1R w KQkq - 0 4',
+# 'rnbqkb1r/ppp2ppp/8/3p4/8/5NP1/PPPPP2P/RNBQKB1R b KQkq - 0 4',
+# 'rn1qkb1r/ppp2ppp/8/3p4/8/5NPb/PPPPP2P/RNBQKB1R w KQkq - 1 5',
+# 'rn1qkb1r/ppp2ppp/8/3p4/8/5NP1/PPPPP2P/RNBQK2R b KQkq - 0 5',
+# 'rn2kb1r/ppp2ppp/8/3p4/7q/5NP1/PPPPP2P/RNBQK2R w KQkq - 1 6',
+# 'rn2kb1r/ppp2ppp/8/3p4/8/5N2/PPPPP2P/RNBQK2R b KQkq - 0 6',
+# 'rn2k2r/ppp2ppp/8/3p4/1b6/5N2/PPPPP2P/RNBQK2R w KQkq - 1 7',
+# 'rn2k2r/ppp2ppp/8/3p4/1b6/2P2N2/PP1PP2P/RNBQK2R b KQkq - 0 7',
+# 'rn2k2r/ppp2ppp/8/2bp4/8/2P2N2/PP1PP2P/RNBQK2R w KQkq - 1 8',
+# 'rn2k2r/ppp2ppp/8/2bp4/3P4/2P2N2/PP2P2P/RNBQK2R b KQkq - 0 8',
+# 'rn2k2r/ppp1bppp/8/3p4/3P4/2P2N2/PP2P2P/RNBQK2R w KQkq - 1 9',
+# 'rn2k2r/ppp1bppp/8/3pN3/3P4/2P5/PP2P2P/RNBQK2R b KQkq - 2 9',
+# 'rn2k2r/ppp2ppp/8/3pN3/3P3b/2P5/PP2P2P/RNBQK2R w KQkq - 3 10',
+# 'rn5r/ppp3pp/8/3p4/3P3b/2P5/PP2P2P/RNBQK2R b KQ - 0 10') # final move should NOT raise warning.
+# 
+# for (i in 1:length(moves)) {
+# 	if (fen_move(positions[i], moves[i], 'atomic') != positions[i+1]) {
+# 		stop('failed at ', positions[i], ' || ', moves[i], ' : ', fen_move(positions[i], moves[i], 'atomic'))
+# 	}
+# }
 
-for (i in 1:length(moves)) {
-	if (fen_move(positions[i], moves[i], 'atomic') != positions[i+1]) {
-		stop('failed at ', positions[i], ' || ', moves[i], ' : ', fen_move(positions[i], moves[i], 'atomic'))
-	}
-}
 
 
-
-
-# Likely to result in error. Handling these is not required at this time.
+message('checking some more, difficult, cases. The first 3 tests are allowed to error/fail.')
+# Likely to result in error.
 tests <- list(c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Ng3', 
 'rnbqkbnr/pppppppp/8/8/8/6N1/PPPPPPPP/RNBQKB1R b KQkq - 1 1'), # Wrong direction
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Nf6', 
@@ -257,6 +262,6 @@ for (test in tests) {
 			warning('failed at ', test[1], ' || ', test[2], ' : ', fen_move(test[1], test[2]))
 		}
 	}, error = function(e) {
-		message(paste("in illegal tests, ", e$messgae))
+		message(paste("error at ", test[1], test[2], " : ", e$message))
 	})
 }

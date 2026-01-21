@@ -5,7 +5,7 @@ source('fen_move.R')
 # These tests are not fully comprehensive, but intend to catch the majority of mistakes.
 
 
-# Check enpassant still working properly
+# Check enpassant working properly
 moves <- c('c5', 'dxc6')
 positions <- c('rn1qkbnr/pppb2pp/3pp3/1N1P1p2/3Q4/8/PPP1PPPP/R1B1KBNR b KQkq - 0 5',
  'rn1qkbnr/pp1b2pp/3pp3/1NpP1p2/3Q4/8/PPP1PPPP/R1B1KBNR w KQkq c6 0 6',
@@ -13,12 +13,13 @@ positions <- c('rn1qkbnr/pppb2pp/3pp3/1N1P1p2/3Q4/8/PPP1PPPP/R1B1KBNR b KQkq - 0
 
 for (i in 1:length(moves)) {
 	if (fen_move(positions[i], moves[i]) != positions[i+1]) {
-		stop('failed at', positions[i], moves[i], ': ', fen_move(positions[i], moves[i]))
+		message('failed at ', positions[i], ' || ', moves[i], ' : ', fen_move(positions[i], moves[i]))
 	}
 }
 
 
-# illegal cases. there should be 13 warnings. (contains illegal positions, not all moves are illegal)
+# illegal cases. (contains illegal positions too; not all moves are illegal)
+message('there should be 13 warnings')
 tests <- list(c('8/3k4/8/3K4/6p1/8/8/8 w - - 0 1', 'Ke6+', '8/3k4/4K3/8/6p1/8/8/8 b - - 1 1'), # KvK
 c('8/3k4/4K3/8/6p1/8/8/8 b - - 0 1', 'Kxe6', '8/8/4k3/8/6p1/8/8/8 w - - 0 2'), # king capture king
 c('7B/8/5k2/8/8/8/8/8 b - - 0 1', 'Kg7', '7B/6k1/8/8/8/8/8/8 w - - 1 2'), # stay in check
@@ -44,7 +45,7 @@ c('r1b1k2r/p1pq1ppp/2n5/1B2p3/Q3n3/2P5/PP3PPP/R1B1K1NR[PBpppn] w KQkq - 0 10', '
 for (test in tests) {
 	tryCatch({
 		if (fen_move(test[1], test[2]) != test[3]) {
-			warning('failed at', test[1], test[2], ': ', fen_move(test[1], test[2]))
+			message('failed at ', test[1], ' || ', test[2], ' : ', fen_move(test[1], test[2]))
 		}
 	}, error = function(e) {
 		message(paste("in illegal tests, ", e$messgae))
@@ -200,7 +201,7 @@ positions <- c(
 
 for (i in 1:length(moves)) {
 	if (fen_move(positions[i], moves[i]) != positions[i+1]) {
-		stop('failed at', positions[i], moves[i], ': ', fen_move(positions[i], moves[i]))
+		message('failed at ', positions[i], ' || ', moves[i], ': ', fen_move(positions[i], moves[i]))
 	}
 }
 
@@ -233,7 +234,7 @@ positions <- c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
 
 for (i in 1:length(moves)) {
 	if (fen_move(positions[i], moves[i], 'atomic') != positions[i+1]) {
-		stop('failed at', positions[i], moves[i], ': ', fen_move(positions[i], moves[i], 'atomic'))
+		stop('failed at ', positions[i], ' || ', moves[i], ' : ', fen_move(positions[i], moves[i], 'atomic'))
 	}
 }
 
@@ -253,7 +254,7 @@ c('r1b1k2r/p1pq1ppp/2n5/1B2p3/Q3n3/2P5/PP3PPP/R1B1K1NR[PBpppn] w KQkq - 0 10', '
 for (test in tests) {
 	tryCatch({
 		if (fen_move(test[1], test[2]) != test[3]) {
-			warning('failed at', test[1], test[2], ': ', fen_move(test[1], test[2]))
+			warning('failed at ', test[1], ' || ', test[2], ' : ', fen_move(test[1], test[2]))
 		}
 	}, error = function(e) {
 		message(paste("in illegal tests, ", e$messgae))

@@ -1,5 +1,3 @@
-suppressWarnings({suppressMessages({ # shell will react to all messages as output. remove to investigate specific failures.
-
 # Execute script
 source('fen_move.R')
 
@@ -36,7 +34,7 @@ c('8/8/8/8/1Q2k1K1/8/8/6q1 w - - 2 3', 'Qe7+', '8/4Q3/8/8/4k1K1/8/8/6q1 b - - 3 
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Ne2', 
 'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # occupied
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Nxe2', 
-'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # can't capture self. !!This FEN is ambiguous. Implementation optional and subjective.
+'rnbqkbnr/pppppppp/8/8/8/8/PPPPNPPP/RNBQKB1R b KQkq - 1 1'), # can't capture self. !!This FEN is ambiguous. Implementation optional and subjective. # if error or failure, inspect solution.
 c('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', 'Rh3', 
 'rnbqkbnr/pppppppp/8/8/8/7R/PPPPPPPP/RNBQKBN1 b KQkq - 1 1'), # blocked # !!error permitted
 c('rnbqk2r/pppp1ppp/8/8/8/BP6/P1PPP1PP/RN1QKBNR b KQkq - 2 6', 'O-O', 
@@ -276,8 +274,5 @@ for (test in tests) {
 }
 
 
-})})
-
 
 cat(max(error_count - 5, 0) + mistake_count)
-# despite my best efforts, renv is likely to chatter upon a fresh rebuild, so do post processing in bash to extract the final output.
